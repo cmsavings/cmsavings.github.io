@@ -1,0 +1,1254 @@
+<!doctype html>
+<html lang="it" class="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#000000">
+  <title>Bilancio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            ink: '#000000',
+            panel: '#050505',
+            line: '#1F1F1F',
+            muted: '#8A8F98',
+            silver: '#C8CDD5',
+            positive: '#D97706',
+            negative: '#2E90FA',
+            petrol: '#0C2D48',
+            petrolBorder: '#1E6091'
+          },
+          fontFamily: { sans: ['Inter', 'sans-serif'] }
+        }
+      }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      color-scheme: dark;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    html, body, body.app-bg, body.app-bg > main {
+      background-color: #000000 !important;
+      color: #FFFFFF !important;
+      font-family: 'Inter', sans-serif;
+    }
+    button, input, select {
+      font: inherit;
+    }
+    .card-box, .modal-box, #weeklyTable {
+      background-color: #050505 !important;
+      border: 1px solid #1F1F1F !important;
+      color: #FFFFFF !important;
+      border-radius: 1.5rem !important;
+      box-shadow: inset 0 1px 0 0 rgba(200, 205, 213, 0.12);
+      transition: border-color 180ms ease;
+    }
+    .card-box:hover {
+      border-color: #C8CDD5 !important;
+    }
+    .card-box *, .modal-box * {
+      border-color: #1F1F1F;
+    }
+    table, thead, tbody, tfoot, tr, th, td {
+      background-color: #050505 !important;
+      color: #FFFFFF !important;
+    }
+    table {
+      border: 1px solid #1F1F1F !important;
+      border-radius: 1.5rem !important;
+      box-shadow: inset 0 1px 0 0 rgba(200, 205, 213, 0.12);
+    }
+    table th, table td {
+      border-color: #1F1F1F !important;
+    }
+    #weeklyTable thead th {
+      color: #C8CDD5 !important;
+    }
+    input, select {
+      background-color: #050505 !important;
+      border: 1px solid #1F1F1F !important;
+      color: #FFFFFF !important;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1rem !important;
+      min-height: 46px;
+      line-height: 1.4 !important;
+      outline: none;
+      width: 100%;
+    }
+    #periodMode {
+      background-color: #050505 !important;
+      color: #C8CDD5 !important;
+      border-color: #1F1F1F !important;
+      width: auto;
+    }
+    input:focus, select:focus {
+      border-color: #C8CDD5 !important;
+      box-shadow: 0 0 0 3px rgba(200, 205, 213, 0.12);
+    }
+    .field::placeholder {
+      color: #666666 !important;
+    }
+    .text-positive {
+      color: #D97706 !important;
+    }
+    .text-negative {
+      color: #2E90FA !important;
+    }
+    .text-muted {
+      color: #8A8F98 !important;
+    }
+    .secondary-control {
+      color: #C8CDD5 !important;
+    }
+    .movement-badge {
+      background-color: rgba(200, 205, 213, 0.08) !important;
+      border: 1px solid rgba(200, 205, 213, 0.28) !important;
+      color: #C8CDD5 !important;
+    }
+    .icon-silver {
+      color: #C8CDD5 !important;
+    }
+    .change-positive {
+      background-color: rgba(217, 119, 6, 0.12) !important;
+      color: #D97706 !important;
+    }
+    .change-negative {
+      background-color: rgba(12, 45, 72, 0.65) !important;
+      border: 1px solid #1E6091 !important;
+      color: #2E90FA !important;
+    }
+    .expense-surface {
+      background-color: #0C2D48 !important;
+      border: 1px solid #1E6091 !important;
+    }
+    .expense-tint {
+      background-color: rgba(12, 45, 72, 0.65) !important;
+      border: 1px solid #1E6091 !important;
+    }
+    .expense-dot {
+      background-color: #1E6091 !important;
+    }
+    .tabular {
+      font-variant-numeric: tabular-nums;
+    }
+    .chart-wrap {
+      position: relative;
+      height: 280px;
+    }
+    .scrollbar-thin {
+      scrollbar-width: thin;
+      scrollbar-color: #1F1F1F transparent;
+    }
+    dialog::backdrop {
+      background: rgba(0, 0, 0, 0.78);
+      backdrop-filter: blur(5px);
+    }
+    .toggle-option {
+      background-color: #000000 !important;
+      border: 1px solid #1F1F1F !important;
+    }
+    #movementDialog .toggle-option[data-type="expense"][aria-pressed="true"] {
+      background-color: #0C2D48 !important;
+      border-color: #2E90FA !important;
+      color: #2E90FA !important;
+    }
+    #movementDialog .toggle-option[data-type="income"][aria-pressed="true"] {
+      background-color: rgba(217, 119, 6, 0.14) !important;
+      border-color: #D97706 !important;
+      color: #D97706 !important;
+    }
+    .view-option[aria-pressed="true"] {
+      background-color: #1F1F1F !important;
+      color: #C8CDD5 !important;
+    }
+    .table-cell {
+      padding: 0.9rem 0.8rem;
+      vertical-align: middle;
+    }
+    #authScreen {
+      min-height: 100vh;
+      background: #000000;
+    }
+    #authScreen .auth-panel {
+      width: min(100% - 2rem, 420px);
+      background: #050505;
+      border: 1px solid #1F1F1F;
+      border-radius: 1.5rem;
+      box-shadow: inset 0 1px 0 0 rgba(200, 205, 213, 0.12);
+    }
+    .password-toggle {
+      position: absolute;
+      top: 50%;
+      right: 15px;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #C8CDD5;
+    }
+    @media (max-width: 640px) {
+      .chart-wrap { height: 240px; }
+      .table-cell { padding: 0.75rem 0.6rem; }
+    }
+  </style>
+</head>
+<body class="app-bg min-h-screen antialiased">
+  <div id="authScreen" class="grid place-items-center px-4 py-10" aria-label="Accesso a Bilancio">
+    <div class="auth-panel p-6 sm:p-8">
+      <a href="#" class="mb-8 flex items-center gap-3" aria-label="Bilancio">
+        <span class="grid h-10 w-10 place-items-center rounded-xl bg-positive text-ink">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 17.5 9.2 12l3.3 3.2L20 7.5M14.5 7.5H20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span class="text-xl font-semibold tracking-tight">Bilancio.</span>
+      </a>
+      <div id="loginView">
+        <h1 class="text-xl font-semibold">Accedi al tuo account</h1>
+        <p class="mt-1 text-sm text-muted">I tuoi dati finanziari, sincronizzati in sicurezza.</p>
+        <form id="loginForm" class="mt-6 space-y-4">
+          <label class="block text-sm text-muted">Email
+            <input id="loginEmail" type="email" autocomplete="email" class="field mt-2" placeholder="nome@email.it" required>
+          </label>
+          <label class="block text-sm text-muted">Password
+            <span class="relative mt-2 block">
+              <input id="loginPassword" type="password" autocomplete="current-password" class="field pr-20" placeholder="La tua password" required>
+              <button type="button" class="password-toggle text-xs font-medium" data-toggle-password="loginPassword" aria-label="Mostra password" aria-pressed="false">Mostra</button>
+            </span>
+          </label>
+          <button id="signInButton" type="submit" class="w-full rounded-xl bg-positive px-4 py-3 text-sm font-bold text-ink transition hover:brightness-110">Accedi</button>
+        </form>
+        <div class="my-5 flex items-center gap-3 text-xs text-muted"><span class="h-px flex-1 bg-line"></span><span>oppure</span><span class="h-px flex-1 bg-line"></span></div>
+        <button id="googleLoginButton" type="button" class="google-sign-in secondary-control w-full rounded-xl border border-line px-4 py-3 text-sm font-semibold transition hover:bg-white/5">
+          <span class="mr-2" aria-hidden="true">G</span>Accedi con Google
+        </button>
+        <p class="mt-6 text-center text-sm text-muted">Non hai un account?
+          <button id="showRegisterView" type="button" class="font-semibold text-positive hover:underline">Registrati</button>
+        </p>
+      </div>
+      <div id="registerView" class="hidden">
+        <h1 class="text-xl font-semibold">Crea il tuo account</h1>
+        <p class="mt-1 text-sm text-muted">Registrati per sincronizzare i tuoi dati.</p>
+        <form id="registerForm" class="mt-6 space-y-4">
+          <label class="block text-sm text-muted">Email
+            <input id="registerEmail" type="email" autocomplete="email" class="field mt-2" placeholder="nome@email.it" required>
+          </label>
+          <label class="block text-sm text-muted">Password
+            <span class="relative mt-2 block">
+              <input id="registerPassword" type="password" autocomplete="new-password" class="field pr-20" placeholder="Almeno 6 caratteri" minlength="6" required>
+              <button type="button" class="password-toggle text-xs font-medium" data-toggle-password="registerPassword" aria-label="Mostra password" aria-pressed="false">Mostra</button>
+            </span>
+          </label>
+          <label class="block text-sm text-muted">Conferma Password
+            <span class="relative mt-2 block">
+              <input id="registerPasswordConfirm" type="password" autocomplete="new-password" class="field pr-20" placeholder="Ripeti la password" minlength="6" required>
+              <button type="button" class="password-toggle text-xs font-medium" data-toggle-password="registerPasswordConfirm" aria-label="Mostra password" aria-pressed="false">Mostra</button>
+            </span>
+          </label>
+          <button id="registerButton" type="submit" class="w-full rounded-xl bg-positive px-4 py-3 text-sm font-bold text-ink transition hover:brightness-110">Registrati</button>
+        </form>
+        <div class="my-5 flex items-center gap-3 text-xs text-muted"><span class="h-px flex-1 bg-line"></span><span>oppure</span><span class="h-px flex-1 bg-line"></span></div>
+        <button id="googleRegisterButton" type="button" class="google-sign-in secondary-control w-full rounded-xl border border-line px-4 py-3 text-sm font-semibold transition hover:bg-white/5">
+          <span class="mr-2" aria-hidden="true">G</span>Accedi con Google
+        </button>
+        <p class="mt-6 text-center text-sm text-muted">Hai già un account?
+          <button id="showLoginView" type="button" class="font-semibold text-positive hover:underline">Accedi</button>
+        </p>
+      </div>
+      <p id="authMessage" class="mt-4 min-h-5 text-sm text-muted" role="status" aria-live="polite"></p>
+      <button id="retryLoadButton" type="button" class="mt-2 hidden text-sm text-positive underline">Riprova il caricamento</button>
+      <p id="firebaseConfigNotice" class="mt-4 hidden rounded-xl border border-line p-3 text-xs leading-relaxed text-muted">
+        Configurazione Firebase non disponibile: verifica i dati del progetto nel blocco <code>firebaseConfig</code> in index.html.
+      </p>
+    </div>
+  </div>
+  <main id="dashboard" class="hidden mx-auto max-w-7xl px-4 pb-14 pt-7 sm:px-6 lg:px-8">
+    <header class="mb-8 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <a href="#" class="flex items-center gap-3" aria-label="Bilancio, pagina iniziale">
+          <span class="grid h-10 w-10 place-items-center rounded-xl bg-positive text-ink">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 17.5 9.2 12l3.3 3.2L20 7.5M14.5 7.5H20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <span class="block text-base font-semibold tracking-tight">Bilancio</span>
+        </a>
+        <button id="logoutButton" type="button" class="secondary-control rounded-lg border border-line px-3 py-2 text-sm transition hover:bg-white/5">Esci</button>
+      </div>
+      <div class="flex items-center gap-3">
+        <label class="sr-only" for="periodMode">Intervallo del bilancio</label>
+        <select id="periodMode" class="field w-auto py-2.5 text-sm">
+          <option value="month">Mese</option>
+          <option value="year">Anno</option>
+        </select>
+        <div class="card-box flex items-center gap-1 rounded-xl p-1">
+          <button id="prevMonth" class="secondary-control grid h-9 w-9 place-items-center rounded-lg transition hover:bg-white/5 hover:text-white" aria-label="Mese precedente">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="m15 18-6-6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <span id="monthLabel" class="min-w-32 px-1 text-center text-sm font-medium capitalize"></span>
+          <button id="nextMonth" class="secondary-control grid h-9 w-9 place-items-center rounded-lg transition hover:bg-white/5 hover:text-white" aria-label="Mese successivo">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="m9 18 6-6-6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+        <button id="openAdd" class="flex h-11 items-center gap-2 rounded-xl bg-positive px-4 text-sm font-bold text-ink transition hover:bg-[#FFB52E]">
+          <span class="text-xl leading-none">+</span> Aggiungi
+        </button>
+      </div>
+    </header>
+
+    <section id="kpiSection" aria-label="Riepilogo del periodo" class="mb-6 grid gap-4 md:grid-cols-3">
+      <article class="card-box p-5 sm:p-6">
+        <div class="flex items-center justify-between">
+          <p class="text-sm text-muted">Saldo complessivo</p>
+          <span class="icon-silver grid h-9 w-9 place-items-center rounded-xl bg-white/[.04]">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="13" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M3 10h18M16 15h2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </span>
+        </div>
+        <p id="balanceValue" class="tabular mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">—</p>
+        <div class="mt-4 flex flex-wrap items-center justify-between gap-2">
+          <p class="text-xs text-muted"><span id="openingLabel">Saldo a inizio mese:</span> <span id="openingBalance" class="tabular text-white">—</span></p>
+          <button id="editOpening" class="secondary-control rounded-md px-2 py-1 text-xs transition hover:bg-white/5 hover:text-white" aria-label="Modifica saldo a inizio mese">Modifica</button>
+        </div>
+        <div id="monthlyChange" class="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-white/[.04] px-2.5 py-1.5 text-xs font-medium tabular"></div>
+      </article>
+      <article class="card-box p-5 sm:p-6">
+        <div class="flex items-center justify-between"><p class="text-sm text-muted">Spese del mese</p><span class="expense-dot h-2 w-2 rounded-full"></span></div>
+        <p id="expenseValue" class="tabular mt-5 text-3xl font-semibold tracking-tight text-negative sm:text-4xl">—</p>
+        <p id="expenseCount" class="mt-3 text-xs text-muted">—</p>
+      </article>
+      <article class="card-box p-5 sm:p-6">
+        <div class="flex items-center justify-between"><p class="text-sm text-muted">Introiti del mese</p><span class="h-2 w-2 rounded-full bg-positive"></span></div>
+        <p id="incomeValue" class="tabular mt-5 text-3xl font-semibold tracking-tight text-positive sm:text-4xl">—</p>
+        <p id="incomeCount" class="mt-3 text-xs text-muted">—</p>
+      </article>
+    </section>
+
+    <section aria-label="Grafici" class="mb-6 grid gap-4 lg:grid-cols-2">
+      <article class="card-box min-w-0 p-5 sm:p-6">
+        <div class="mb-5 flex items-start justify-between gap-3">
+          <div><h2 class="font-semibold">Spese per categoria</h2><p class="mt-1 text-xs text-muted">Come hai distribuito le tue uscite</p></div>
+          <span id="categoryCardLabel" class="rounded-lg border border-line px-2.5 py-1.5 text-xs text-muted">Questo mese</span>
+        </div>
+        <div class="grid items-center gap-5 sm:grid-cols-[minmax(0,1.1fr)_minmax(0,.9fr)]">
+          <div class="relative mx-auto h-56 w-full max-w-[270px]">
+            <canvas id="categoryChart" aria-label="Grafico a ciambella delle spese per categoria"></canvas>
+            <div id="donutCenter" class="pointer-events-none absolute inset-0 grid place-content-center text-center"><span class="text-[11px] text-muted">Totale spese</span><strong id="donutTotal" class="tabular mt-1 text-sm font-semibold"></strong></div>
+            <div id="categoryEmpty" class="pointer-events-none absolute inset-0 hidden grid place-content-center text-center"><span class="text-sm text-muted">Nessuna spesa registrata</span><span class="mt-1 text-xs text-muted">La ripartizione apparirà qui</span></div>
+          </div>
+          <div id="categoryLegend" class="space-y-3"></div>
+        </div>
+      </article>
+      <article class="card-box min-w-0 p-5 sm:p-6">
+        <div class="mb-5 flex flex-wrap items-start justify-between gap-3">
+          <div><h2 class="font-semibold">Andamento risparmi</h2><p class="mt-1 text-xs text-muted">L’evoluzione del tuo saldo</p></div>
+          <div class="card-box flex rounded-lg p-1" role="group" aria-label="Vista andamento risparmi">
+            <button class="view-option rounded-md px-2.5 py-1.5 text-xs text-muted" data-view="monthly" aria-pressed="true">Mensile</button>
+            <button class="view-option rounded-md px-2.5 py-1.5 text-xs text-muted" data-view="weekly" aria-pressed="false">Settimanale</button>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="savingsChart" aria-label="Grafico andamento dei risparmi"></canvas><div id="savingsEmpty" class="absolute inset-0 hidden grid place-content-center text-center"><span class="text-sm text-muted">Nessun movimento registrato</span><span class="mt-1 text-xs text-muted">L’andamento apparirà qui</span></div></div>
+      </article>
+    </section>
+
+    <section aria-label="Movimenti del mese" class="mb-6 grid gap-4 lg:grid-cols-2">
+      <article class="card-box min-w-0 p-5 sm:p-6">
+        <div class="mb-4 flex items-center justify-between"><div><h2 class="font-semibold">Spese</h2><p id="expenseSubtitle" class="mt-1 text-xs text-muted"></p></div><span class="expense-tint rounded-full px-2.5 py-1 text-xs font-medium text-negative">Uscite</span></div>
+        <div id="expenseList" class="max-h-[390px] space-y-1 overflow-y-auto scrollbar-thin"></div>
+      </article>
+      <article class="card-box min-w-0 p-5 sm:p-6">
+        <div class="mb-4 flex items-center justify-between"><div><h2 class="font-semibold">Introiti</h2><p id="incomeSubtitle" class="mt-1 text-xs text-muted"></p></div><span class="rounded-full bg-positive/10 px-2.5 py-1 text-xs font-medium text-positive">Entrate</span></div>
+        <div id="incomeList" class="max-h-[390px] space-y-1 overflow-y-auto scrollbar-thin"></div>
+      </article>
+    </section>
+
+    <section class="card-box overflow-hidden">
+      <div class="flex flex-col gap-5 border-b border-line p-5 sm:p-6 xl:flex-row xl:items-end xl:justify-between">
+        <div>
+          <div class="flex items-center gap-2"><span class="icon-silver grid h-8 w-8 place-items-center rounded-lg bg-white/[.04]"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M7 3v3m10-3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v13H4V6a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><h2 id="trackingTitle" class="text-lg font-semibold">Tracciamento settimanale</h2></div>
+          <p class="mt-2 max-w-2xl text-sm text-muted">Un riepilogo settimanale del capitale e dei movimenti, per tenere d’occhio i progressi.</p>
+        </div>
+      </div>
+      <div class="scrollbar-thin overflow-x-auto">
+        <table id="weeklyTable" class="card-box w-full min-w-[780px] border-collapse text-left text-xs sm:text-sm">
+          <thead class="bg-[#050505] text-[10px] uppercase tracking-wider text-muted sm:text-[11px]">
+            <tr id="weeklyTableHead">
+              <th class="table-cell font-medium">Settimana</th>
+              <th class="table-cell text-right font-medium">Risparmio</th>
+              <th class="table-cell text-right font-medium">Var Settimanale</th>
+              <th class="table-cell text-right font-medium">Var Percentuale</th>
+              <th class="table-cell text-right font-medium">Spese</th>
+              <th class="table-cell text-right font-medium">Introiti</th>
+            </tr>
+          </thead>
+          <tbody id="weeklyRows" class="divide-y divide-line"></tbody>
+          <tfoot id="weeklySummary"></tfoot>
+        </table>
+      </div>
+      <p id="trackingDescription" class="border-t border-line px-5 py-3 text-xs text-muted sm:px-6">Le settimane seguono il calendario da lunedì a domenica; la prima e l’ultima possono essere parziali. Il riepilogo confronta il saldo di fine mese con quello del mese precedente.</p>
+    </section>
+    <footer class="mt-6 flex flex-wrap items-center justify-between gap-2 text-xs text-muted"><span>I tuoi dati restano salvati in questo browser.</span><button id="resetData" class="transition hover:text-white">Azzera dati</button></footer>
+  </main>
+
+  <dialog id="movementDialog" class="modal-box card-box w-[min(100%-2rem,480px)] p-0 shadow-2xl">
+    <form id="movementForm" class="p-6 sm:p-7">
+      <div class="mb-6 flex items-start justify-between"><div><h2 id="movementDialogTitle" class="text-lg font-semibold">Aggiungi movimento</h2><p class="mt-1 text-sm text-muted">Registra una spesa o un nuovo introito.</p></div><button type="button" class="close-dialog secondary-control rounded-lg p-2 hover:bg-white/5 hover:text-white" aria-label="Chiudi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="m18 6-12 12M6 6l12 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button></div>
+      <div class="mb-5 grid grid-cols-2 gap-3">
+        <button type="button" class="toggle-option rounded-xl border border-line py-3 text-sm font-medium text-muted" data-type="expense" aria-pressed="true">Spesa (-)</button>
+        <button type="button" class="toggle-option rounded-xl border border-line py-3 text-sm font-medium text-muted" data-type="income" aria-pressed="false">Introito (+)</button>
+      </div>
+      <input id="movementType" type="hidden" value="expense">
+      <div class="space-y-4">
+        <label class="block text-sm text-muted">Categoria<select id="categoryInput" class="field mt-2" required></select></label>
+        <input id="customCategoryInput" type="text" class="field mt-2 hidden" placeholder="Specifica qui..." maxlength="30" aria-label="Specifica la categoria">
+        <label class="block text-sm text-muted">Descrizione<input id="descriptionInput" class="field mt-2" type="text" maxlength="100" placeholder="es. Spesa settimanale" required></label>
+        <div id="paymentFields" class="space-y-4">
+          <label class="block text-sm text-muted">Metodo di pagamento
+            <select id="paymentMethod" class="field mt-2">
+              <option value="cash">Contanti</option>
+              <option value="card">Carta</option>
+            </select>
+          </label>
+          <label id="cardNameField" class="hidden text-sm text-muted">Quale carta hai usato?
+            <input id="cardNameInput" class="field mt-2" type="text" maxlength="50" placeholder="es. Intesa, Revolut, Amex">
+          </label>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <label class="block text-sm text-muted">Importo (€)<input id="amountInput" class="field tabular mt-2" type="number" min="0.01" step="0.01" placeholder="0,00" required></label>
+          <label class="block text-sm text-muted">Data<input id="dateInput" class="field mt-2" type="date" required></label>
+        </div>
+      </div>
+      <div class="mt-7 flex justify-end gap-3"><button type="button" class="close-dialog secondary-control rounded-xl border border-line px-4 py-2.5 text-sm transition hover:text-white">Annulla</button><button id="movementSubmit" type="submit" class="rounded-xl bg-positive px-5 py-2.5 text-sm font-bold text-ink transition hover:bg-[#FFB52E]">Salva movimento</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="balanceDialog" class="modal-box card-box w-[min(100%-2rem,420px)] p-0 shadow-2xl">
+    <form id="balanceForm" class="p-6 sm:p-7">
+      <div class="mb-5 flex items-start justify-between"><div><h2 id="balanceDialogTitle" class="text-lg font-semibold">Saldo a inizio mese</h2><p id="balanceDialogMonth" class="mt-1 text-sm text-muted"></p></div><button type="button" class="close-dialog secondary-control rounded-lg p-2 hover:bg-white/5 hover:text-white" aria-label="Chiudi">✕</button></div>
+      <label class="block text-sm text-muted">Importo (€)<input id="openingInput" class="field tabular mt-2" type="number" step="0.01" required></label>
+      <div class="mt-6 flex justify-end gap-3"><button type="button" class="close-dialog secondary-control rounded-xl border border-line px-4 py-2.5 text-sm hover:text-white">Annulla</button><button type="submit" class="rounded-xl bg-positive px-5 py-2.5 text-sm font-bold text-ink hover:bg-[#FFB52E]">Salva saldo</button></div>
+    </form>
+  </dialog>
+  <div id="toast" class="card-box pointer-events-none fixed bottom-5 left-1/2 z-50 -translate-x-1/2 translate-y-3 px-4 py-3 text-sm opacity-0 shadow-xl transition-all" role="status" aria-live="polite"></div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+    import {
+      getAuth,
+      signInWithPopup,
+      GoogleAuthProvider,
+      signInWithEmailAndPassword,
+      createUserWithEmailAndPassword,
+      signOut,
+      onAuthStateChanged
+    } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+    import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC4AQVQ8xE_HtdGTn7KmRo4J5hAPsem7EA",
+      authDomain: "appbilanciocm.firebaseapp.com",
+      projectId: "appbilanciocm",
+      storageBucket: "appbilanciocm.firebasestorage.app",
+      messagingSenderId: "374428572976",
+      appId: "1:374428572976:web:da7da858e5e370df583cf5"
+    };
+
+    (() => {
+      'use strict';
+      const LEGACY_STORAGE_KEYS = ['fintracker_clean_v4', 'fintracker_clean_v3'];
+      ['risparmi-fintech-v1', 'risparmi-fintech-v2'].forEach(key => localStorage.removeItem(key));
+      const firebaseConfigured = Object.values(firebaseConfig).every(Boolean);
+      let firebaseApp = null;
+      let auth = null;
+      let db = null;
+      let googleProvider = null;
+      let firebaseInitializationError = null;
+      if (firebaseConfigured) {
+        try {
+          firebaseApp = initializeApp(firebaseConfig);
+          auth = getAuth(firebaseApp);
+          db = getFirestore(firebaseApp);
+          googleProvider = new GoogleAuthProvider();
+        } catch (error) {
+          firebaseInitializationError = error;
+          console.error('Inizializzazione Firebase non riuscita:', error);
+        }
+      }
+      const firebaseReady = Boolean(auth && db && googleProvider);
+      const COLORS = ['#D97706', '#1E6091', '#C8CDD5', '#2E90FA', '#FFB800', '#0C2D48', '#8A8F98', '#D96B27'];
+      const CATEGORIES = {
+        expense: ['Spesa', 'Pasti fuori', 'Affitto & Casa', 'Bollette & Utenze', 'Trasporti', 'Università & Studio', 'Sanità', 'Cura Personale', 'Vestiario', 'Svago & Hobby', 'Abbonamenti', 'Viaggi', 'Regali', 'Altro'],
+        income: ['Famiglia', 'Stipendio / Lavoretti', 'Regali ricevuti', 'Rimborsi / Vendita usato', 'Altre entrate', 'Altro']
+      };
+      const CATEGORY_ALIASES = {
+        expense: new Map([
+          ['alimentari', 'Spesa'],
+          ['spesa alimentare', 'Spesa'],
+          ['supermercato', 'Spesa'],
+          ['ristorante', 'Pasti fuori'],
+          ['ristoranti', 'Pasti fuori'],
+          ['casa', 'Affitto & Casa'],
+          ['affitto', 'Affitto & Casa'],
+          ['bollette', 'Bollette & Utenze'],
+          ['utenze', 'Bollette & Utenze'],
+          ['benzina', 'Trasporti'],
+          ['carburante', 'Trasporti'],
+          ['università', 'Università & Studio'],
+          ['studio', 'Università & Studio'],
+          ['farmacia', 'Sanità'],
+          ['salute', 'Sanità'],
+          ['personale', 'Cura Personale'],
+          ['abbigliamento', 'Vestiario'],
+          ['vestiti', 'Vestiario'],
+          ['hobby', 'Svago & Hobby'],
+          ['svago', 'Svago & Hobby'],
+          ['viaggio', 'Viaggi'],
+          ['imprevisti', 'Altro / Imprevisti']
+        ]),
+        income: new Map([
+          ['stipendio', 'Stipendio / Lavoretti'],
+          ['lavoro', 'Stipendio / Lavoretti'],
+          ['lavoretti', 'Stipendio / Lavoretti'],
+          ['regalo', 'Regali ricevuti'],
+          ['rimborsi', 'Rimborsi / Vendita usato'],
+          ['rimborso', 'Rimborsi / Vendita usato'],
+          ['vendita usato', 'Rimborsi / Vendita usato'],
+          ['altro', 'Altro']
+        ])
+      };
+      const money = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 });
+      const signedMoney = value => value > 0 ? `+${money.format(value)}` : value < 0 ? `-${money.format(Math.abs(value))}` : money.format(0);
+      const signedPercent = value => value > 0 ? `+${value.toLocaleString('it-IT', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%` : value < 0 ? `-${Math.abs(value).toLocaleString('it-IT', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%` : '0,0%';
+      const monthKey = date => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      const parseMonth = key => { const [year, month] = key.split('-').map(Number); return new Date(year, month - 1, 1); };
+      const dateKey = date => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+      const fromDateKey = key => { const [year, month, day] = key.split('-').map(Number); return new Date(year, month - 1, day); };
+      const escapeHtml = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+      const formatDate = key => fromDateKey(key).toLocaleDateString('it-IT', { day: '2-digit', month: 'short' }).replace('.', '');
+      const formatLongDate = key => fromDateKey(key).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      const formatWeekLabel = week => {
+        const shortDate = key => fromDateKey(key).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' });
+        return `Sett. ${week.number} (${shortDate(week.start)} - ${shortDate(week.end)})`;
+      };
+      const now = new Date();
+      const todayKey = dateKey(now);
+      let selectedMonth = monthKey(now);
+      let periodMode = 'month';
+      let savingsView = 'monthly';
+      let categoryChart;
+      let savingsChart;
+      let toastTimer;
+      let editingMovementId = null;
+      let activeUser = null;
+      let authLoadSequence = 0;
+      let saveQueue = Promise.resolve();
+
+      function makeEmptyState() { return { version: 3, openingBalances: {}, movements: [] }; }
+
+      function normalizeState(value) {
+        if (!value || !Array.isArray(value.movements) || !value.openingBalances || typeof value.openingBalances !== 'object' || Array.isArray(value.openingBalances)) {
+          throw new Error('I dati dell’account non hanno un formato valido.');
+        }
+        return { version: 3, openingBalances: value.openingBalances, movements: value.movements };
+      }
+
+      async function loadState(user) {
+        const userRef = doc(db, 'users', user.uid);
+        const snapshot = await getDoc(userRef);
+        if (snapshot.exists()) {
+          const remoteState = normalizeState(snapshot.data());
+          const categoriesChanged = migrateCategories(remoteState);
+          if (categoriesChanged) await setDoc(userRef, remoteState);
+          return remoteState;
+        }
+
+        let legacyState = null;
+        let legacyKey = null;
+        for (const key of LEGACY_STORAGE_KEYS) {
+          const raw = localStorage.getItem(key);
+          if (!raw) continue;
+          try {
+            legacyState = normalizeState(JSON.parse(raw));
+          } catch (error) {
+            console.error(`Dati locali non validi nella chiave ${key}:`, error);
+            throw new Error('I dati locali esistenti non sono validi; non sono stati eliminati.');
+          }
+          legacyKey = key;
+          break;
+        }
+
+        const nextState = legacyState || makeEmptyState();
+        migrateCategories(nextState);
+        await setDoc(userRef, nextState);
+        if (legacyKey) LEGACY_STORAGE_KEYS.forEach(key => localStorage.removeItem(key));
+        return nextState;
+      }
+
+      function setAuthMessage(message, isError = false) {
+        const element = document.getElementById('authMessage');
+        element.textContent = message;
+        element.classList.toggle('text-negative', isError);
+        element.classList.toggle('text-muted', !isError);
+      }
+
+      function setAuthBusy(isBusy) {
+        ['signInButton', 'registerButton', 'googleLoginButton', 'googleRegisterButton'].forEach(id => {
+          document.getElementById(id).disabled = isBusy || !firebaseReady;
+        });
+      }
+
+      function firebaseErrorMessage(error) {
+        console.error('Operazione Firebase non riuscita:', error);
+        return error?.message || 'Si è verificato un errore durante la connessione a Firebase.';
+      }
+
+      function loadAuthenticatedState(user) {
+        const currentSequence = ++authLoadSequence;
+        document.getElementById('authScreen').classList.remove('hidden');
+        document.getElementById('dashboard').classList.add('hidden');
+        document.getElementById('retryLoadButton').classList.add('hidden');
+        setAuthMessage('Caricamento dei dati…');
+        loadState(user).then(loadedState => {
+          if (currentSequence !== authLoadSequence || auth.currentUser?.uid !== user.uid) return;
+          activeUser = user;
+          state = loadedState;
+          document.getElementById('authScreen').classList.add('hidden');
+          document.getElementById('dashboard').classList.remove('hidden');
+          render();
+        }).catch(error => {
+          if (currentSequence !== authLoadSequence) return;
+          activeUser = user;
+          setAuthMessage(firebaseErrorMessage(error), true);
+          document.getElementById('retryLoadButton').classList.remove('hidden');
+        });
+      }
+
+      let state = makeEmptyState();
+      function persist() {
+        if (!activeUser || !db) {
+          showToast('Accedi prima di salvare le modifiche.');
+          return Promise.resolve(false);
+        }
+        const uid = activeUser.uid;
+        const snapshot = JSON.parse(JSON.stringify(state));
+        saveQueue = saveQueue.catch(() => {}).then(() => setDoc(doc(db, 'users', uid), snapshot));
+        return saveQueue.then(() => true).catch(error => {
+          console.error('Salvataggio Firestore non riuscito:', error);
+          showToast('Impossibile sincronizzare i dati con Firestore.');
+          return false;
+        });
+      }
+      function migrateCategories(currentState) {
+        let changed = false;
+        currentState.movements.forEach(movement => {
+          if (!movement || typeof movement !== 'object' || !['expense', 'income'].includes(movement.type)) return;
+          const type = movement.type;
+          const category = String(movement.category || '').trim().replace(/\s+/g, ' ');
+          const categories = CATEGORIES[type];
+          const existingCategory = categories.find(item => item.toLocaleLowerCase('it-IT') === category.toLocaleLowerCase('it-IT'));
+          const mappedCategory = existingCategory || CATEGORY_ALIASES[type].get(category.toLocaleLowerCase('it-IT')) || category || (type === 'expense' ? 'Altro / Imprevisti' : 'Altre entrate');
+          if (movement.category !== mappedCategory) {
+            movement.category = mappedCategory;
+            changed = true;
+          }
+        });
+        return changed;
+      }
+      function showToast(message) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.classList.remove('opacity-0', 'translate-y-3');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.add('opacity-0', 'translate-y-3'), 2600);
+      }
+      function movementsForMonth(key) { return state.movements.filter(item => item.date.slice(0, 7) === key); }
+      function movementsForYear(year) { return state.movements.filter(item => item.date.slice(0, 4) === String(year)); }
+      function periodMovements() {
+        return periodMode === 'year' ? movementsForYear(parseMonth(selectedMonth).getFullYear()) : movementsForMonth(selectedMonth);
+      }
+      function monthTotals(key) {
+        const list = movementsForMonth(key);
+        return {
+          income: list.filter(item => item.type === 'income').reduce((sum, item) => sum + item.amount, 0),
+          expense: list.filter(item => item.type === 'expense').reduce((sum, item) => sum + item.amount, 0)
+        };
+      }
+      function totalsForYear(year) {
+        const list = movementsForYear(year);
+        return {
+          income: list.filter(item => item.type === 'income').reduce((sum, item) => sum + item.amount, 0),
+          expense: list.filter(item => item.type === 'expense').reduce((sum, item) => sum + item.amount, 0)
+        };
+      }
+      function openingFor(key) {
+        if (Object.hasOwn(state.openingBalances, key)) return Number(state.openingBalances[key]);
+        const anchor = [
+          ...Object.keys(state.openingBalances),
+          ...state.movements.map(item => item.date.slice(0, 7))
+        ].sort()[0];
+        if (!anchor || key < anchor) return 0;
+        let cursor = parseMonth(anchor);
+        let opening = Number(state.openingBalances[anchor] || 0);
+        while (monthKey(cursor) < key) {
+          const totals = monthTotals(monthKey(cursor));
+          opening += totals.income - totals.expense;
+          cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
+          const cursorKey = monthKey(cursor);
+          if (cursorKey < key && Object.hasOwn(state.openingBalances, cursorKey)) opening = Number(state.openingBalances[cursorKey]);
+        }
+        return opening;
+      }
+      function monthBalance(key) { const totals = monthTotals(key); return openingFor(key) + totals.income - totals.expense; }
+      function yearOpening(year) { return openingFor(`${year}-01`); }
+      function yearBalance(year) {
+        const totals = totalsForYear(year);
+        return yearOpening(year) + totals.income - totals.expense;
+      }
+      function periodTotals() {
+        return periodMode === 'year' ? totalsForYear(parseMonth(selectedMonth).getFullYear()) : monthTotals(selectedMonth);
+      }
+      function periodOpening() {
+        return periodMode === 'year' ? yearOpening(parseMonth(selectedMonth).getFullYear()) : openingFor(selectedMonth);
+      }
+      function periodBalance() {
+        return periodMode === 'year' ? yearBalance(parseMonth(selectedMonth).getFullYear()) : monthBalance(selectedMonth);
+      }
+      function weeksFor(key) {
+        const month = parseMonth(key);
+        const last = new Date(month.getFullYear(), month.getMonth() + 1, 0);
+        const weeks = [];
+        const monthMovements = movementsForMonth(key);
+        let startDate = new Date(month.getFullYear(), month.getMonth(), 1);
+        let weekNumber = 0;
+        while (startDate <= last) {
+          weekNumber += 1;
+          const mondayBasedDay = (startDate.getDay() + 6) % 7;
+          const endDate = new Date(startDate);
+          endDate.setDate(Math.min(startDate.getDate() + 6 - mondayBasedDay, last.getDate()));
+          const start = dateKey(startDate);
+          const end = dateKey(endDate);
+          const items = monthMovements.filter(item => item.date >= start && item.date <= end);
+          if (items.length) {
+            weeks.push({
+              key: start,
+              number: weekNumber,
+              start,
+              end,
+              income: items.filter(item => item.type === 'income').reduce((sum, item) => sum + item.amount, 0),
+              expense: items.filter(item => item.type === 'expense').reduce((sum, item) => sum + item.amount, 0),
+              incomes: items.filter(item => item.type === 'income'),
+              expenses: items.filter(item => item.type === 'expense')
+            });
+          }
+          startDate = new Date(endDate);
+          startDate.setDate(startDate.getDate() + 1);
+        }
+        return weeks;
+      }
+      function weeklySnapshot(week, index, weeks) {
+        const previous = index > 0 ? weeklySnapshot(weeks[index - 1], index - 1, weeks) : openingFor(selectedMonth);
+        return previous + week.income - week.expense;
+      }
+      function renderList(type, list) {
+        const target = document.getElementById(type === 'expense' ? 'expenseList' : 'incomeList');
+        if (!list.length) {
+          target.innerHTML = `<div class="grid min-h-32 place-items-center text-center"><div><span class="text-sm text-muted">Nessun ${type === 'expense' ? 'movimento in uscita' : 'introito'} in questo ${periodMode === 'year' ? 'anno' : 'mese'}</span><p class="mt-1 text-xs text-muted">Aggiungi un movimento per visualizzarlo qui.</p></div></div>`;
+          return;
+        }
+        const sorted = [...list].sort((a, b) => b.date.localeCompare(a.date));
+        target.innerHTML = sorted.map(item => {
+          const positive = type === 'income';
+          const paymentBadge = type === 'expense'
+            ? `<span class="movement-badge max-w-36 truncate rounded-md px-2 py-0.5 text-[10px]">${item.paymentMethod === 'card' ? `Carta: ${escapeHtml(item.cardName || '')}` : 'Contanti'}</span>`
+            : '';
+          return `<div class="group flex items-center gap-3 rounded-xl px-2 py-3 transition hover:bg-white/[.025]">
+            <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl ${positive ? 'bg-positive/10 text-positive' : 'expense-surface text-negative'}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="${positive ? 'M12 19V5m-6 6 6-6 6 6' : 'M12 5v14m6-6-6 6-6-6'}" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <div class="min-w-0 flex-1"><div class="flex flex-wrap items-center gap-2"><p class="truncate text-sm font-medium">${escapeHtml(item.description)}</p><span class="movement-badge max-w-32 truncate rounded-md px-2 py-0.5 text-[10px]">${escapeHtml(item.category)}</span>${paymentBadge}</div><p class="mt-1 text-xs text-muted">${formatDate(item.date)}</p></div>
+            <span class="tabular whitespace-nowrap text-sm font-medium ${positive ? 'text-positive' : 'text-negative'}">${signedMoney(positive ? item.amount : -item.amount)}</span>
+            <button class="edit-movement ml-1 rounded-lg p-2 text-muted opacity-70 transition hover:bg-white/5 hover:text-white focus:opacity-100 sm:opacity-0 sm:group-hover:opacity-100" data-id="${escapeHtml(item.id)}" aria-label="Modifica ${escapeHtml(item.description)}" title="Modifica movimento">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="m14 5 5 5M4 20l4.5-1 10.8-10.8a2.1 2.1 0 0 0-3-3L5.5 16 4 20Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="delete-movement ml-1 rounded-lg p-2 text-muted opacity-70 transition hover:bg-[#0C2D48] hover:text-negative sm:opacity-0 sm:group-hover:opacity-100" data-id="${escapeHtml(item.id)}" aria-label="Elimina ${escapeHtml(item.description)}">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 7h16m-10 4v6m4-6v6M5 7l1 14h12l1-14M9 7V4h6v3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>`;
+        }).join('');
+      }
+      function renderCategoryChart(expenses) {
+        const categories = new Map();
+        expenses.forEach(item => categories.set(item.category, (categories.get(item.category) || 0) + item.amount));
+        const entries = [...categories.entries()].sort((a, b) => b[1] - a[1]);
+        const total = entries.reduce((sum, entry) => sum + entry[1], 0);
+        document.getElementById('donutTotal').textContent = money.format(total);
+        document.getElementById('categoryChart').classList.toggle('hidden', !entries.length);
+        document.getElementById('donutCenter').classList.toggle('hidden', !entries.length);
+        document.getElementById('categoryEmpty').classList.toggle('hidden', entries.length > 0);
+        document.getElementById('categoryLegend').innerHTML = entries.length ? entries.slice(0, 6).map(([name, value], index) => {
+          const percent = total ? value / total * 100 : 0;
+          return `<div class="flex items-center gap-2.5"><span class="h-2.5 w-2.5 shrink-0 rounded-full" style="background:${COLORS[index % COLORS.length]}"></span><span class="min-w-0 flex-1 truncate text-xs text-muted">${escapeHtml(name)}</span><span class="tabular text-right text-xs text-white">${money.format(value)}<span class="ml-1 text-muted">${percent.toLocaleString('it-IT', { maximumFractionDigits: 1 })}%</span></span></div>`;
+        }).join('') : '<p class="py-6 text-center text-xs text-muted">Nessuna spesa da mostrare</p>';
+        if (categoryChart) categoryChart.destroy();
+        if (!entries.length) {
+          categoryChart = undefined;
+          return;
+        }
+        categoryChart = new Chart(document.getElementById('categoryChart'), {
+          type: 'doughnut',
+          data: { labels: entries.map(entry => entry[0]), datasets: [{ data: entries.map(entry => entry[1]), backgroundColor: entries.map((_, index) => COLORS[index % COLORS.length]), borderColor: '#050505', borderWidth: 4, hoverOffset: 6 }] },
+          options: { responsive: true, maintainAspectRatio: false, cutout: '76%', plugins: { legend: { display: false }, tooltip: { backgroundColor: '#050505', borderColor: '#1F1F1F', titleColor: '#C8CDD5', bodyColor: '#FFFFFF', borderWidth: 1, padding: 11, callbacks: { label: context => ` ${context.label}: ${money.format(context.raw)} (${total ? (context.raw / total * 100).toLocaleString('it-IT', { maximumFractionDigits: 1 }) : '0'}%)` } } } }
+        });
+      }
+      function renderSavingsChart() {
+        const canvas = document.getElementById('savingsChart');
+        const empty = document.getElementById('savingsEmpty');
+        const hasMovements = periodMovements().length > 0 || periodOpening() !== 0;
+        canvas.classList.toggle('hidden', !hasMovements);
+        empty.classList.toggle('hidden', hasMovements);
+        if (savingsChart) savingsChart.destroy();
+        if (!hasMovements) {
+          savingsChart = undefined;
+          return;
+        }
+        const current = parseMonth(selectedMonth);
+        let labels;
+        let values;
+        if (periodMode === 'year') {
+          const year = current.getFullYear();
+          labels = Array.from({ length: 12 }, (_, index) => new Date(year, index, 1).toLocaleDateString('it-IT', { month: 'short' }));
+          values = Array.from({ length: 12 }, (_, index) => monthBalance(monthKey(new Date(year, index, 1))));
+        } else if (savingsView === 'weekly') {
+          const weeks = weeksFor(selectedMonth);
+          labels = weeks.map(formatWeekLabel);
+          values = weeks.map((week, index) => weeklySnapshot(week, index, weeks));
+        } else {
+          const monthKeys = [];
+          for (let offset = -5; offset <= 0; offset++) monthKeys.push(monthKey(new Date(current.getFullYear(), current.getMonth() + offset, 1)));
+          labels = monthKeys.map(key => parseMonth(key).toLocaleDateString('it-IT', { month: 'short' }));
+          values = monthKeys.map(key => monthBalance(key));
+        }
+        const context = document.getElementById('savingsChart').getContext('2d');
+        const gradient = context.createLinearGradient(0, 0, 0, 280);
+        gradient.addColorStop(0, 'rgba(217, 119, 6, 0.22)');
+        gradient.addColorStop(1, 'rgba(217, 119, 6, 0.0)');
+        savingsChart = new Chart(context, {
+          type: 'line',
+          data: { labels, datasets: [{ data: values, borderColor: '#D97706', backgroundColor: gradient, fill: true, tension: .38, borderWidth: 2.5, pointRadius: 3, pointHoverRadius: 5, pointBackgroundColor: '#D97706', pointBorderColor: '#050505', pointBorderWidth: 2 }] },
+          options: { responsive: true, maintainAspectRatio: false, interaction: { intersect: false, mode: 'index' }, plugins: { legend: { display: false }, tooltip: { backgroundColor: '#050505', borderColor: '#1F1F1F', titleColor: '#C8CDD5', bodyColor: '#FFFFFF', borderWidth: 1, padding: 11, callbacks: { label: context => ` ${money.format(context.raw)}` } } }, scales: { x: { grid: { display: false }, border: { display: false }, ticks: { color: '#8A8F98', maxRotation: 0 } }, y: { grid: { color: '#2A2D34', borderDash: [3, 6] }, border: { display: false, dash: [3, 6] }, ticks: { color: '#8A8F98', maxTicksLimit: 5, callback: value => new Intl.NumberFormat('it-IT', { notation: 'compact', maximumFractionDigits: 1 }).format(value) } } } }
+        });
+      }
+      function setTableHeaders(labels) {
+        document.querySelectorAll('#weeklyTableHead th').forEach((cell, index) => { cell.textContent = labels[index]; });
+      }
+      function renderAnnualTable() {
+        const year = parseMonth(selectedMonth).getFullYear();
+        const annualMovements = movementsForYear(year);
+        const rows = document.getElementById('weeklyRows');
+        const summary = document.getElementById('weeklySummary');
+        setTableHeaders(['Mese', 'Risparmio', 'Var Mensile', 'Var Percentuale', 'Spese', 'Introiti']);
+        if (!annualMovements.length) {
+          rows.innerHTML = '<tr><td class="table-cell py-10 text-center text-sm text-muted" colspan="6">Il riepilogo annuale apparirà qui dopo il primo movimento.</td></tr>';
+          summary.innerHTML = '';
+          return;
+        }
+        rows.innerHTML = Array.from({ length: 12 }, (_, index) => {
+          const key = monthKey(new Date(year, index, 1));
+          const monthDate = parseMonth(key);
+          const monthName = monthDate.toLocaleDateString('it-IT', { month: 'long' });
+          const balance = monthBalance(key);
+          const previousKey = monthKey(new Date(year, index - 1, 1));
+          const previous = monthBalance(previousKey);
+          const delta = balance - previous;
+          const percent = previous === 0 ? 0 : delta / previous * 100;
+          const totals = monthTotals(key);
+          const deltaColor = delta > 0 ? 'text-positive' : delta < 0 ? 'text-negative' : 'text-white';
+          return `<tr class="transition hover:bg-white/[.015]">
+            <td class="table-cell whitespace-nowrap font-medium capitalize">${monthName}</td>
+            <td class="table-cell tabular text-right font-medium">${money.format(balance)}</td>
+            <td class="table-cell tabular text-right ${deltaColor}">${signedMoney(delta)}</td>
+            <td class="table-cell tabular text-right ${deltaColor}">${signedPercent(percent)}</td>
+            <td class="table-cell tabular text-right ${totals.expense ? 'text-negative' : 'text-muted'}">${totals.expense ? `-${money.format(totals.expense)}` : money.format(0)}</td>
+            <td class="table-cell tabular text-right ${totals.income ? 'text-positive' : 'text-muted'}">${totals.income ? `+${money.format(totals.income)}` : money.format(0)}</td>
+          </tr>`;
+        }).join('');
+        const totals = totalsForYear(year);
+        const balance = yearBalance(year);
+        const previousBalance = yearBalance(year - 1);
+        const delta = balance - previousBalance;
+        const percent = previousBalance === 0 ? 0 : delta / Math.abs(previousBalance) * 100;
+        const deltaColor = delta > 0 ? 'text-positive' : delta < 0 ? 'text-negative' : 'text-white';
+        summary.innerHTML = `<tr class="border-t border-line bg-[#050505] font-semibold">
+          <td class="table-cell">Riepilogo ${year}</td><td class="table-cell tabular text-right">${money.format(balance)}</td>
+          <td class="table-cell tabular text-right ${deltaColor}">${signedMoney(delta)}</td><td class="table-cell tabular text-right ${deltaColor}">${signedPercent(percent)}</td>
+          <td class="table-cell tabular text-right ${totals.expense ? 'text-negative' : 'text-muted'}">${totals.expense ? `-${money.format(totals.expense)}` : money.format(0)}</td>
+          <td class="table-cell tabular text-right ${totals.income ? 'text-positive' : 'text-muted'}">${totals.income ? `+${money.format(totals.income)}` : money.format(0)}</td>
+        </tr>`;
+      }
+      function renderWeeklyTable() {
+        if (periodMode === 'year') {
+          renderAnnualTable();
+          return;
+        }
+        setTableHeaders(['Settimana', 'Risparmio', 'Var Settimanale', 'Var Percentuale', 'Spese', 'Introiti']);
+        const weeks = weeksFor(selectedMonth);
+        if (!movementsForMonth(selectedMonth).length) {
+          document.getElementById('weeklyRows').innerHTML = '<tr><td class="table-cell py-10 text-center text-sm text-muted" colspan="6">Il riepilogo settimanale apparirà qui dopo il primo movimento.</td></tr>';
+          document.getElementById('weeklySummary').innerHTML = '';
+          return;
+        }
+        let previous = openingFor(selectedMonth);
+        document.getElementById('weeklyRows').innerHTML = weeks.map((week, index) => {
+          const balance = weeklySnapshot(week, index, weeks);
+          const delta = balance - previous;
+          const percent = previous === 0 ? 0 : delta / previous * 100;
+          const savingsColor = delta > 0 ? 'text-positive' : delta < 0 ? 'text-negative' : 'text-white';
+          const percentColor = percent > 0 ? 'text-positive' : percent < 0 ? 'text-negative' : 'text-white';
+          previous = balance;
+          return `<tr class="transition hover:bg-white/[.015]">
+            <td class="table-cell whitespace-nowrap font-medium">${formatWeekLabel(week)}</td>
+            <td class="table-cell tabular text-right font-medium">${money.format(balance)}</td>
+            <td class="table-cell tabular text-right ${savingsColor}">${signedMoney(delta)}</td>
+            <td class="table-cell tabular text-right ${percentColor}">${signedPercent(percent)}</td>
+            <td class="table-cell tabular text-right ${week.expense ? 'text-negative' : 'text-muted'}">${week.expense ? `-${money.format(week.expense)}` : money.format(0)}</td>
+            <td class="table-cell tabular text-right ${week.income ? 'text-positive' : 'text-muted'}">${week.income ? `+${money.format(week.income)}` : money.format(0)}</td>
+          </tr>`;
+        }).join('');
+        const currentTotal = monthBalance(selectedMonth);
+        const priorMonthKey = monthKey(new Date(parseMonth(selectedMonth).getFullYear(), parseMonth(selectedMonth).getMonth() - 1, 1));
+        const priorTotal = monthBalance(priorMonthKey);
+        const delta = currentTotal - priorTotal;
+        const percent = priorTotal === 0 ? 0 : delta / Math.abs(priorTotal) * 100;
+        const deltaColor = delta > 0 ? 'text-positive' : delta < 0 ? 'text-negative' : 'text-white';
+        const totals = monthTotals(selectedMonth);
+        document.getElementById('weeklySummary').innerHTML = `<tr class="border-t border-line bg-[#050505] font-semibold">
+          <td class="table-cell">Riepilogo mese</td><td class="table-cell tabular text-right">${money.format(currentTotal)}</td>
+          <td class="table-cell tabular text-right ${deltaColor}">${signedMoney(delta)}</td><td class="table-cell tabular text-right ${deltaColor}">${signedPercent(percent)}</td>
+          <td class="table-cell tabular text-right ${totals.expense ? 'text-negative' : 'text-muted'}">${totals.expense ? `-${money.format(totals.expense)}` : money.format(0)}</td>
+          <td class="table-cell tabular text-right ${totals.income ? 'text-positive' : 'text-muted'}">${totals.income ? `+${money.format(totals.income)}` : money.format(0)}</td>
+        </tr>`;
+      }
+      function render() {
+        const date = parseMonth(selectedMonth);
+        const year = date.getFullYear();
+        document.getElementById('monthLabel').textContent = periodMode === 'year' ? String(year) : date.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
+        document.getElementById('prevMonth').setAttribute('aria-label', periodMode === 'year' ? 'Anno precedente' : 'Mese precedente');
+        document.getElementById('nextMonth').setAttribute('aria-label', periodMode === 'year' ? 'Anno successivo' : 'Mese successivo');
+        document.getElementById('periodMode').value = periodMode;
+        document.getElementById('openingLabel').textContent = periodMode === 'year' ? 'Saldo a inizio anno:' : 'Saldo a inizio mese:';
+        document.getElementById('editOpening').setAttribute('aria-label', periodMode === 'year' ? 'Modifica saldo a inizio anno' : 'Modifica saldo a inizio mese');
+        document.querySelector('#kpiSection').setAttribute('aria-label', periodMode === 'year' ? 'Riepilogo annuale' : 'Riepilogo mensile');
+        document.querySelector('#kpiSection article:nth-child(2) .text-muted').textContent = periodMode === 'year' ? 'Spese dell’anno' : 'Spese del mese';
+        document.querySelector('#kpiSection article:nth-child(3) .text-muted').textContent = periodMode === 'year' ? 'Introiti dell’anno' : 'Introiti del mese';
+        document.getElementById('trackingTitle').textContent = periodMode === 'year' ? 'Riepilogo annuale' : 'Tracciamento settimanale';
+        document.getElementById('trackingDescription').textContent = periodMode === 'year'
+          ? 'Andamento mese per mese del saldo, delle spese e degli introiti dell’anno selezionato.'
+          : 'Le settimane seguono il calendario da lunedì a domenica; la prima e l’ultima possono essere parziali. Il riepilogo confronta il saldo di fine mese con quello del mese precedente.';
+        document.querySelector('[data-view="weekly"]').classList.toggle('hidden', periodMode === 'year');
+        if (periodMode === 'year' && savingsView === 'weekly') {
+          savingsView = 'monthly';
+          document.querySelectorAll('.view-option').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.view === 'monthly')));
+        }
+        const list = periodMovements();
+        const totals = periodTotals();
+        const start = periodOpening();
+        const ending = periodBalance();
+        const delta = ending - start;
+        const percent = start === 0 ? 0 : delta / Math.abs(start) * 100;
+        document.getElementById('balanceValue').textContent = money.format(ending);
+        document.getElementById('openingBalance').textContent = money.format(start);
+        const change = document.getElementById('monthlyChange');
+        change.className = `mt-4 inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium tabular ${delta > 0 ? 'change-positive' : delta < 0 ? 'change-negative' : 'bg-white/[.04] text-muted'}`;
+        change.innerHTML = `<span aria-hidden="true">${delta > 0 ? '▲' : delta < 0 ? '▼' : '→'}</span><span>${signedMoney(delta)}</span><span>(${signedPercent(percent)})</span><span class="text-muted">${periodMode === 'year' ? 'quest’anno' : 'questo mese'}</span>`;
+        document.getElementById('expenseValue').textContent = totals.expense ? `-${money.format(totals.expense)}` : money.format(0);
+        document.getElementById('incomeValue').textContent = totals.income ? `+${money.format(totals.income)}` : money.format(0);
+        const expenses = list.filter(item => item.type === 'expense');
+        const incomes = list.filter(item => item.type === 'income');
+        document.getElementById('expenseCount').textContent = `${expenses.length} ${expenses.length === 1 ? 'movimento' : 'movimenti'} registrati`;
+        document.getElementById('incomeCount').textContent = `${incomes.length} ${incomes.length === 1 ? 'movimento' : 'movimenti'} registrati`;
+        document.getElementById('expenseSubtitle').textContent = `${expenses.length} ${expenses.length === 1 ? 'movimento' : 'movimenti'} · ${money.format(totals.expense)}`;
+        document.getElementById('incomeSubtitle').textContent = `${incomes.length} ${incomes.length === 1 ? 'movimento' : 'movimenti'} · ${money.format(totals.income)}`;
+        renderList('expense', expenses);
+        renderList('income', incomes);
+        renderCategoryChart(expenses);
+        renderSavingsChart();
+        document.querySelector('#categoryCardLabel').textContent = periodMode === 'year' ? 'Quest’anno' : 'Questo mese';
+        renderWeeklyTable();
+      }
+      function updateCategoryOptions() {
+        const categoryInput = document.getElementById('categoryInput');
+        const categories = CATEGORIES[document.getElementById('movementType').value];
+        const currentCategory = categoryInput.value;
+        categoryInput.replaceChildren(...categories.map(category => new Option(category, category)));
+        categoryInput.value = categories.includes(currentCategory) ? currentCategory : categories[0];
+        updateCustomCategoryField();
+      }
+      function updateCustomCategoryField() {
+        const categoryInput = document.getElementById('categoryInput');
+        const customCategoryInput = document.getElementById('customCategoryInput');
+        const isCustomCategory = categoryInput.value === 'Altro';
+        customCategoryInput.classList.toggle('hidden', !isCustomCategory);
+        customCategoryInput.required = isCustomCategory;
+        if (!isCustomCategory) customCategoryInput.value = '';
+      }
+      function updatePaymentFields() {
+        const isExpense = document.getElementById('movementType').value === 'expense';
+        const isCard = isExpense && document.getElementById('paymentMethod').value === 'card';
+        document.getElementById('paymentFields').classList.toggle('hidden', !isExpense);
+        document.getElementById('cardNameField').classList.toggle('hidden', !isCard);
+        document.getElementById('cardNameInput').required = isCard;
+        updateCategoryOptions();
+      }
+
+      document.getElementById('prevMonth').addEventListener('click', () => {
+        const date = parseMonth(selectedMonth);
+        selectedMonth = monthKey(new Date(date.getFullYear(), date.getMonth() - (periodMode === 'year' ? 12 : 1), 1));
+        render();
+      });
+      document.getElementById('nextMonth').addEventListener('click', () => {
+        const date = parseMonth(selectedMonth);
+        selectedMonth = monthKey(new Date(date.getFullYear(), date.getMonth() + (periodMode === 'year' ? 12 : 1), 1));
+        render();
+      });
+      document.getElementById('periodMode').addEventListener('change', event => {
+        periodMode = event.target.value;
+        if (periodMode === 'year') savingsView = 'monthly';
+        render();
+      });
+      document.getElementById('openAdd').addEventListener('click', () => {
+        editingMovementId = null;
+        document.getElementById('movementForm').reset();
+        document.getElementById('dateInput').value = todayKey;
+        document.getElementById('movementType').value = 'expense';
+        document.getElementById('paymentMethod').value = 'cash';
+        document.getElementById('movementDialogTitle').textContent = 'Aggiungi movimento';
+        document.getElementById('movementSubmit').textContent = 'Salva movimento';
+        updatePaymentFields();
+        document.querySelectorAll('.toggle-option').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.type === 'expense')));
+        document.getElementById('movementDialog').showModal();
+      });
+      document.querySelectorAll('.toggle-option').forEach(button => button.addEventListener('click', () => {
+        document.getElementById('movementType').value = button.dataset.type;
+        document.querySelectorAll('.toggle-option').forEach(option => option.setAttribute('aria-pressed', String(option === button)));
+        updatePaymentFields();
+      }));
+      document.getElementById('paymentMethod').addEventListener('change', updatePaymentFields);
+      document.getElementById('categoryInput').addEventListener('change', updateCustomCategoryField);
+      document.querySelectorAll('.close-dialog').forEach(button => button.addEventListener('click', () => button.closest('dialog').close()));
+      document.getElementById('movementForm').addEventListener('submit', event => {
+        event.preventDefault();
+        const selectedCategory = document.getElementById('categoryInput').value;
+        const customCategory = document.getElementById('customCategoryInput').value.trim().replace(/\s+/g, ' ');
+        const category = selectedCategory === 'Altro' ? customCategory : selectedCategory;
+        const description = document.getElementById('descriptionInput').value.trim();
+        const amount = Number(document.getElementById('amountInput').value);
+        const date = document.getElementById('dateInput').value;
+        const type = document.getElementById('movementType').value;
+        const paymentMethod = document.getElementById('paymentMethod').value;
+        const cardName = document.getElementById('cardNameInput').value.trim();
+        if (!CATEGORIES[type]?.includes(selectedCategory) || (selectedCategory === 'Altro' && !customCategory) || !description || !Number.isFinite(amount) || amount <= 0 || !date || (type === 'expense' && paymentMethod === 'card' && !cardName)) {
+          showToast('Controlla categoria, descrizione, data, importo e metodo di pagamento.');
+          return;
+        }
+        const movementData = {
+          type,
+          category,
+          description,
+          amount,
+          date,
+          ...(type === 'expense' ? { paymentMethod, cardName: paymentMethod === 'card' ? cardName : '' } : {})
+        };
+        if (editingMovementId) {
+          const movementIndex = state.movements.findIndex(item => item.id === editingMovementId);
+          if (movementIndex === -1) {
+            showToast('Il movimento da modificare non è stato trovato.');
+            return;
+          }
+          const updatedMovement = { ...state.movements[movementIndex], ...movementData };
+          if (type !== 'expense') {
+            delete updatedMovement.paymentMethod;
+            delete updatedMovement.cardName;
+          }
+          state.movements[movementIndex] = updatedMovement;
+        } else {
+          state.movements.push({
+            id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
+            ...movementData
+          });
+        }
+        persist();
+        selectedMonth = date.slice(0, 7);
+        document.getElementById('movementDialog').close();
+        render();
+        showToast(editingMovementId ? 'Movimento aggiornato.' : 'Movimento aggiunto.');
+        editingMovementId = null;
+      });
+      document.addEventListener('click', event => {
+        const button = event.target.closest('.edit-movement, .delete-movement');
+        if (!button) return;
+        if (button.classList.contains('edit-movement')) {
+          const movement = state.movements.find(item => item.id === button.dataset.id);
+          if (!movement) {
+            showToast('Il movimento da modificare non è stato trovato.');
+            return;
+          }
+          editingMovementId = movement.id;
+          document.getElementById('movementForm').reset();
+          document.getElementById('movementType').value = movement.type;
+          document.getElementById('descriptionInput').value = movement.description;
+          document.getElementById('amountInput').value = Number(movement.amount).toFixed(2);
+          document.getElementById('dateInput').value = movement.date;
+          document.getElementById('paymentMethod').value = movement.paymentMethod || 'cash';
+          document.getElementById('cardNameInput').value = movement.cardName || '';
+          document.getElementById('movementDialogTitle').textContent = 'Modifica movimento';
+          document.getElementById('movementSubmit').textContent = 'Salva modifiche';
+          updatePaymentFields();
+          const categoryInput = document.getElementById('categoryInput');
+          const categoryIsSelectable = CATEGORIES[movement.type].includes(movement.category);
+          categoryInput.value = categoryIsSelectable ? movement.category : 'Altro';
+          updateCustomCategoryField();
+          if (!categoryIsSelectable) document.getElementById('customCategoryInput').value = movement.category;
+          document.querySelectorAll('.toggle-option').forEach(option => option.setAttribute('aria-pressed', String(option.dataset.type === movement.type)));
+          document.getElementById('movementDialog').showModal();
+          return;
+        }
+        state.movements = state.movements.filter(item => item.id !== button.dataset.id);
+        persist();
+        render();
+        showToast('Movimento eliminato.');
+      });
+      document.getElementById('editOpening').addEventListener('click', () => {
+        const year = parseMonth(selectedMonth).getFullYear();
+        const periodName = periodMode === 'year' ? String(year) : parseMonth(selectedMonth).toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
+        document.getElementById('balanceDialogTitle').textContent = `Saldo a inizio ${periodMode === 'year' ? 'anno' : 'mese'}`;
+        document.getElementById('balanceDialogMonth').textContent = `Saldo iniziale per ${periodName}`;
+        document.getElementById('openingInput').value = periodOpening().toFixed(2);
+        document.getElementById('balanceDialog').showModal();
+      });
+      document.getElementById('balanceForm').addEventListener('submit', event => {
+        event.preventDefault();
+        const value = Number(document.getElementById('openingInput').value);
+        if (!Number.isFinite(value)) { showToast('Inserisci un saldo valido.'); return; }
+        const openingKey = periodMode === 'year' ? `${parseMonth(selectedMonth).getFullYear()}-01` : selectedMonth;
+        state.openingBalances[openingKey] = value;
+        persist();
+        document.getElementById('balanceDialog').close();
+        render();
+        showToast('Saldo iniziale aggiornato.');
+      });
+      document.querySelectorAll('.view-option').forEach(button => button.addEventListener('click', () => {
+        savingsView = button.dataset.view;
+        document.querySelectorAll('.view-option').forEach(option => option.setAttribute('aria-pressed', String(option === button)));
+        renderSavingsChart();
+      }));
+      document.getElementById('resetData').addEventListener('click', () => {
+        if (!confirm('Vuoi eliminare tutti i movimenti e i saldi salvati?')) return;
+        state = makeEmptyState();
+        persist();
+        selectedMonth = monthKey(now);
+        render();
+        showToast('Dati azzerati.');
+      });
+      document.getElementById('showRegisterView').addEventListener('click', () => {
+        document.getElementById('loginView').classList.add('hidden');
+        document.getElementById('registerView').classList.remove('hidden');
+        setAuthMessage('');
+      });
+      document.getElementById('showLoginView').addEventListener('click', () => {
+        document.getElementById('registerView').classList.add('hidden');
+        document.getElementById('loginView').classList.remove('hidden');
+        setAuthMessage('');
+      });
+      document.querySelectorAll('[data-toggle-password]').forEach(button => button.addEventListener('click', () => {
+        const passwordInput = document.getElementById(button.dataset.togglePassword);
+        const isVisible = passwordInput.type === 'text';
+        passwordInput.type = isVisible ? 'password' : 'text';
+        button.textContent = isVisible ? 'Mostra' : 'Nascondi';
+        button.setAttribute('aria-label', isVisible ? 'Mostra password' : 'Nascondi password');
+        button.setAttribute('aria-pressed', String(!isVisible));
+      }));
+      document.getElementById('loginForm').addEventListener('submit', async event => {
+        event.preventDefault();
+        if (!auth) return;
+        setAuthBusy(true);
+        setAuthMessage('Accesso in corso…');
+        try {
+          await signInWithEmailAndPassword(auth, document.getElementById('loginEmail').value.trim(), document.getElementById('loginPassword').value);
+        } catch (error) {
+          setAuthMessage(firebaseErrorMessage(error), true);
+        } finally {
+          setAuthBusy(false);
+        }
+      });
+      document.getElementById('registerForm').addEventListener('submit', async event => {
+        event.preventDefault();
+        if (!auth) return;
+        const password = document.getElementById('registerPassword').value;
+        const passwordConfirmation = document.getElementById('registerPasswordConfirm').value;
+        if (password !== passwordConfirmation) {
+          setAuthMessage('Le password non coincidono', true);
+          return;
+        }
+        setAuthBusy(true);
+        setAuthMessage('Registrazione in corso…');
+        try {
+          await createUserWithEmailAndPassword(auth, document.getElementById('registerEmail').value.trim(), password);
+        } catch (error) {
+          setAuthMessage(firebaseErrorMessage(error), true);
+        } finally {
+          setAuthBusy(false);
+        }
+      });
+      document.querySelectorAll('.google-sign-in').forEach(button => button.addEventListener('click', async () => {
+        if (!auth || !googleProvider) return;
+        setAuthBusy(true);
+        setAuthMessage('Accesso con Google in corso…');
+        try {
+          await signInWithPopup(auth, googleProvider);
+        } catch (error) {
+          setAuthMessage(firebaseErrorMessage(error), true);
+        } finally {
+          setAuthBusy(false);
+        }
+      }));
+      document.getElementById('logoutButton').addEventListener('click', async () => {
+        if (!auth) return;
+        try {
+          await signOut(auth);
+        } catch (error) {
+          showToast(firebaseErrorMessage(error));
+        }
+      });
+      document.getElementById('retryLoadButton').addEventListener('click', () => {
+        if (auth?.currentUser) loadAuthenticatedState(auth.currentUser);
+      });
+
+      document.getElementById('firebaseConfigNotice').classList.toggle('hidden', firebaseReady);
+      setAuthBusy(!firebaseReady);
+      if (!firebaseReady) {
+        setAuthMessage(firebaseInitializationError ? firebaseErrorMessage(firebaseInitializationError) : 'Completa la configurazione Firebase per abilitare l’accesso.', Boolean(firebaseInitializationError));
+      } else {
+        onAuthStateChanged(auth, user => {
+          if (user) {
+            loadAuthenticatedState(user);
+            return;
+          }
+          authLoadSequence += 1;
+          activeUser = null;
+          state = makeEmptyState();
+          document.getElementById('dashboard').classList.add('hidden');
+          document.getElementById('authScreen').classList.remove('hidden');
+          document.getElementById('retryLoadButton').classList.add('hidden');
+          setAuthMessage('Accedi o registrati per continuare.');
+        }, error => {
+          setAuthMessage(firebaseErrorMessage(error), true);
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
