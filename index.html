@@ -268,6 +268,12 @@
       cursor: pointer;
       color: var(--silver-color);
     }
+    #quickAddNotice {
+      border: 1px solid rgba(46, 144, 250, 0.35);
+      border-radius: 0.75rem;
+      background: rgba(46, 144, 250, 0.1);
+      color: #2E90FA;
+    }
     #themeToggle {
       border: 1px solid var(--border-color);
       background: var(--bg-card);
@@ -809,6 +815,7 @@
 
   <dialog id="movementDialog" class="modal-box card-box w-[min(100%-2rem,480px)] p-0 shadow-2xl">
     <form id="movementForm" class="p-6 sm:p-7">
+      <p id="quickAddNotice" class="hidden mb-5 px-3 py-2 text-sm" role="status">✨ Dati pre-compilati automaticamente — Controlla e premi Salva</p>
       <div class="mb-6 flex items-start justify-between"><div><h2 id="movementDialogTitle" class="text-lg font-semibold">Aggiungi movimento</h2><p class="mt-1 text-sm text-muted">Registra una spesa o un nuovo introito.</p></div><button type="button" class="close-dialog secondary-control rounded-lg p-2 hover:bg-white/5 hover:text-white" aria-label="Chiudi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="m18 6-12 12M6 6l12 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button></div>
       <div class="mb-5 grid grid-cols-2 gap-3">
         <button type="button" class="toggle-option rounded-xl border border-line py-3 text-sm font-medium text-muted" data-type="expense" aria-pressed="true">Spesa (-)</button>
@@ -904,6 +911,20 @@
         expense: ['Spesa', 'Pasti fuori', 'Affitto & Casa', 'Bollette & Utenze', 'Trasporti', 'Università & Studio', 'Sanità', 'Cura Personale', 'Vestiario', 'Svago & Hobby', 'Abbonamenti', 'Viaggi', 'Regali', 'Altro'],
         income: ['Famiglia', 'Stipendio / Lavoretti', 'Regali ricevuti', 'Rimborsi / Vendita usato', 'Altre entrate', 'Altro']
       };
+      const CATEGORY_KEYWORDS = {
+        expense: [
+          { category: 'Spesa', keywords: ['conad', 'coop', 'esselunga', 'carrefour', 'lidl', 'eurospin', 'md', 'pam', 'despar', 'supermercato', 'alimentari', 'ortofrutta', 'macelleria', 'panificio', 'forno', 'spesa'] },
+          { category: 'Trasporti', keywords: ['trenitalia', 'italo', 'treno', 'treni', 'bus', 'metro', 'atm', 'atac', 'anm', 'eav', 'uber', 'taxi', 'benzina', 'diesel', 'eni', 'q8', 'ip', 'tamoil', 'autostrada', 'telepass', 'parcheggio', 'ryanair', 'easyjet', 'ita airways', 'volo', 'voli'] },
+          { category: 'Svago & Hobby', keywords: ['bar', 'caffe', 'caffè', 'ristorante', 'pizzeria', 'pub', 'birreria', 'mcdonald', 'burger king', 'kfc', 'poke', 'sushi', 'deliveroo', 'glovo', 'just eat', 'cinema', 'teatro', 'bowling', 'discoteca', 'spotify', 'netflix', 'amazon prime', 'disney', 'playstation', 'steam', 'calcetto', 'palestra', 'halloween', 'aperitivo', 'cena'] },
+          { category: 'Vestiario', keywords: ['zara', 'h&m', 'pull&bear', 'bershka', 'stradivarius', 'uniqlo', 'zalando', 'vinted', 'nike', 'adidas', 'decathlon', 'calzedonia', 'intimissimi', 'ovs', 'abbigliamento', 'scarpe', 'maglioni', 'vestiti'] },
+          { category: 'Viaggi', keywords: ['hotel', 'booking', 'airbnb', 'hostel', 'ostello', 'b&b', 'albergo', 'viaggio', 'vacanza', 'museo', 'torino', 'roma', 'milano', 'napoli'] },
+          { category: 'Altro / Imprevisti', keywords: ['farmacia', 'medico', 'dentista', 'ortopantomografia', 'visita', 'ospedale', 'analisi', 'università', 'universita', 'tasse', 'bolletta', 'luce', 'gas', 'internet', 'iliad', 'tim', 'vodafone', 'wind', 'amazon', 'tabacchi', 'poste'] }
+        ],
+        income: [
+          { category: 'Stipendio / Lavoretti', keywords: ['stipendio', 'lavoro', 'paga', 'fattura', 'compenso', 'lezione', 'ripetizioni'] },
+          { category: 'Altre entrate', keywords: ['bonifico', 'regalo', 'rimborso', 'vendita', 'subito', 'libro'] }
+        ]
+      };
       const CATEGORY_ALIASES = {
         expense: new Map([
           ['alimentari', 'Spesa'],
@@ -947,6 +968,7 @@
       const parseMonth = key => { const [year, month] = key.split('-').map(Number); return new Date(year, month - 1, 1); };
       const dateKey = date => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
       const fromDateKey = key => { const [year, month, day] = key.split('-').map(Number); return new Date(year, month - 1, day); };
+      const normalizeSearchText = value => String(value || '').toLocaleLowerCase('it-IT').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
       const escapeHtml = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
       const formatDate = key => fromDateKey(key).toLocaleDateString('it-IT', { day: '2-digit', month: 'short' }).replace('.', '');
       const formatLongDate = key => fromDateKey(key).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -963,6 +985,8 @@
       let savingsChart;
       let toastTimer;
       let editingMovementId = null;
+      let categoryTouched = false;
+      let quickAddChecked = false;
       let activeUser = null;
       let authLoadSequence = 0;
       let saveQueue = Promise.resolve();
@@ -1058,6 +1082,7 @@
           document.getElementById('authScreen').classList.add('hidden');
           document.getElementById('dashboard').classList.remove('hidden');
           render();
+          checkUrlParamsForQuickAdd();
         }).catch(error => {
           if (currentSequence !== authLoadSequence) return;
           activeUser = user;
@@ -1096,6 +1121,30 @@
           }
         });
         return changed;
+      }
+      function guessCategory(title, type) {
+        const normalizedTitle = normalizeSearchText(title);
+        const categories = CATEGORIES[type];
+        if (!normalizedTitle) return type === 'expense' ? 'Spesa' : 'Altre entrate';
+
+        const matchingMovements = state.movements
+          .filter(movement => movement?.type === type && typeof movement.description === 'string' && typeof movement.category === 'string')
+          .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
+        const exactMatch = matchingMovements.find(movement => normalizeSearchText(movement.description) === normalizedTitle);
+        if (exactMatch) return exactMatch.category;
+
+        const titleWords = new Set(normalizedTitle.split(' ').filter(word => word.length >= 4));
+        const historyMatch = matchingMovements.find(movement => {
+          const movementWords = normalizeSearchText(movement.description).split(' ').filter(word => word.length >= 4);
+          return movementWords.some(word => titleWords.has(word));
+        });
+        if (historyMatch) return historyMatch.category;
+
+        const keywordMatch = CATEGORY_KEYWORDS[type].find(group => group.keywords.some(keyword => {
+          const normalizedKeyword = normalizeSearchText(keyword);
+          return ` ${normalizedTitle} `.includes(` ${normalizedKeyword} `);
+        }));
+        return keywordMatch?.category || (type === 'expense' ? 'Altro / Imprevisti' : 'Altre entrate');
       }
       function showToast(message) {
         const toast = document.getElementById('toast');
@@ -1505,6 +1554,74 @@
         document.getElementById('cardNameInput').required = isCard;
         updateCategoryOptions();
       }
+      function setCategorySelection(category, type) {
+        const categoryInput = document.getElementById('categoryInput');
+        const customCategoryInput = document.getElementById('customCategoryInput');
+        const isSelectable = CATEGORIES[type].includes(category);
+        categoryInput.value = isSelectable ? category : 'Altro';
+        updateCustomCategoryField();
+        if (!isSelectable) customCategoryInput.value = category;
+      }
+      function applyGuessedCategory(title, type) {
+        setCategorySelection(guessCategory(title, type), type);
+      }
+      function prepareNewMovement() {
+        editingMovementId = null;
+        categoryTouched = false;
+        document.getElementById('movementForm').reset();
+        document.getElementById('dateInput').value = todayKey;
+        document.getElementById('movementType').value = 'expense';
+        document.getElementById('paymentMethod').value = 'cash';
+        document.getElementById('movementDialogTitle').textContent = 'Aggiungi movimento';
+        document.getElementById('movementSubmit').textContent = 'Salva movimento';
+        document.getElementById('quickAddNotice').classList.add('hidden');
+        updatePaymentFields();
+        setCategorySelection('Spesa', 'expense');
+        document.querySelectorAll('.toggle-option').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.type === 'expense')));
+      }
+      function checkUrlParamsForQuickAdd() {
+        if (quickAddChecked) return;
+        quickAddChecked = true;
+        const params = new URLSearchParams(window.location.search);
+        const quickAddKeys = ['importo', 'amount', 'titolo', 'title', 'nome', 'tipo', 'type', 'carta', 'card', 'metodo', 'data', 'date'];
+        if (!quickAddKeys.some(key => params.has(key))) return;
+        const getParam = (...keys) => {
+          for (const key of keys) {
+            const value = params.get(key);
+            if (value !== null && value.trim()) return value.trim();
+          }
+          return '';
+        };
+        const title = getParam('titolo', 'title', 'nome').replace(/\s+/g, ' ');
+        const rawAmount = getParam('importo', 'amount');
+        const parsedAmount = rawAmount ? Number.parseFloat(rawAmount.replace(',', '.')) : Number.NaN;
+        const amount = Number.isFinite(parsedAmount) && parsedAmount > 0 ? parsedAmount : null;
+        const rawType = getParam('tipo', 'type').toLocaleLowerCase('it-IT');
+        const type = ['income', 'entrata'].includes(rawType) ? 'income' : 'expense';
+        const rawPayment = getParam('carta', 'card', 'metodo').replace(/\s+/g, ' ');
+        const paymentValue = rawPayment.toLocaleLowerCase('it-IT');
+        const rawDate = getParam('data', 'date');
+        const parsedDate = /^\d{4}-\d{2}-\d{2}$/.test(rawDate)
+          && dateKey(new Date(`${rawDate}T00:00:00`)) === rawDate
+          ? rawDate
+          : todayKey;
+
+        prepareNewMovement();
+        document.getElementById('movementType').value = type;
+        document.getElementById('descriptionInput').value = title;
+        document.getElementById('amountInput').value = amount === null ? '' : amount.toFixed(2);
+        document.getElementById('dateInput').value = parsedDate;
+        document.getElementById('paymentMethod').value = type === 'expense' && !['cash', 'contanti'].includes(paymentValue) ? 'card' : 'cash';
+        document.getElementById('cardNameInput').value = type === 'expense' && document.getElementById('paymentMethod').value === 'card'
+          ? !rawPayment || paymentValue.includes('trade') || ['card', 'carta'].includes(paymentValue) ? 'Trade Republic' : rawPayment
+          : '';
+        updatePaymentFields();
+        document.querySelectorAll('.toggle-option').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.type === type)));
+        applyGuessedCategory(title, type);
+        document.getElementById('quickAddNotice').classList.remove('hidden');
+        document.getElementById('movementDialog').showModal();
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
 
       document.getElementById('prevMonth').addEventListener('click', () => {
         const date = parseMonth(selectedMonth);
@@ -1522,24 +1639,28 @@
         render();
       });
       document.getElementById('openAdd').addEventListener('click', () => {
-        editingMovementId = null;
-        document.getElementById('movementForm').reset();
-        document.getElementById('dateInput').value = todayKey;
-        document.getElementById('movementType').value = 'expense';
-        document.getElementById('paymentMethod').value = 'cash';
-        document.getElementById('movementDialogTitle').textContent = 'Aggiungi movimento';
-        document.getElementById('movementSubmit').textContent = 'Salva movimento';
-        updatePaymentFields();
-        document.querySelectorAll('.toggle-option').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.type === 'expense')));
+        prepareNewMovement();
         document.getElementById('movementDialog').showModal();
       });
       document.querySelectorAll('.toggle-option').forEach(button => button.addEventListener('click', () => {
         document.getElementById('movementType').value = button.dataset.type;
         document.querySelectorAll('.toggle-option').forEach(option => option.setAttribute('aria-pressed', String(option === button)));
         updatePaymentFields();
+        if (!categoryTouched && !editingMovementId) {
+          applyGuessedCategory(document.getElementById('descriptionInput').value, button.dataset.type);
+        }
       }));
       document.getElementById('paymentMethod').addEventListener('change', updatePaymentFields);
-      document.getElementById('categoryInput').addEventListener('change', updateCustomCategoryField);
+      document.getElementById('descriptionInput').addEventListener('input', event => {
+        if (categoryTouched || editingMovementId) return;
+        applyGuessedCategory(event.currentTarget.value, document.getElementById('movementType').value);
+      });
+      document.getElementById('categoryInput').addEventListener('pointerdown', () => { categoryTouched = true; });
+      document.getElementById('categoryInput').addEventListener('keydown', () => { categoryTouched = true; });
+      document.getElementById('categoryInput').addEventListener('change', () => {
+        categoryTouched = true;
+        updateCustomCategoryField();
+      });
       document.querySelectorAll('.close-dialog').forEach(button => button.addEventListener('click', () => button.closest('dialog').close()));
       document.getElementById('movementForm').addEventListener('submit', event => {
         event.preventDefault();
@@ -1608,6 +1729,7 @@
           document.getElementById('cardNameInput').value = movement.cardName || '';
           document.getElementById('movementDialogTitle').textContent = 'Modifica movimento';
           document.getElementById('movementSubmit').textContent = 'Salva modifiche';
+          document.getElementById('quickAddNotice').classList.add('hidden');
           updatePaymentFields();
           const categoryInput = document.getElementById('categoryInput');
           const categoryIsSelectable = CATEGORIES[movement.type].includes(movement.category);
