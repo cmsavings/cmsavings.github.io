@@ -879,6 +879,38 @@
 
     (() => {
       'use strict';
+      const quickAddStorageKey = 'bilancio_pending_quick_add';
+      const quickAddParams = new URLSearchParams(window.location.search);
+      const quickAddParameterNames = ['importo', 'amount', 'titolo', 'title', 'nome', 'tipo', 'type', 'carta', 'card', 'metodo', 'data', 'date'];
+      let pendingQuickAdd = quickAddParameterNames.some(name => quickAddParams.has(name))
+        ? Object.fromEntries(quickAddParams.entries())
+        : null;
+      if (pendingQuickAdd) {
+        try {
+          sessionStorage.setItem(quickAddStorageKey, JSON.stringify(pendingQuickAdd));
+        } catch (error) {
+          console.error('Salvataggio dei parametri Quick Add non riuscito:', error);
+        }
+      } else {
+        try {
+          const storedQuickAdd = sessionStorage.getItem(quickAddStorageKey);
+          if (storedQuickAdd) {
+            const parsedQuickAdd = JSON.parse(storedQuickAdd);
+            if (parsedQuickAdd && typeof parsedQuickAdd === 'object' && !Array.isArray(parsedQuickAdd)) {
+              pendingQuickAdd = parsedQuickAdd;
+            } else {
+              throw new Error('I parametri Quick Add salvati non sono validi.');
+            }
+          }
+        } catch (error) {
+          console.error('Ripristino dei parametri Quick Add non riuscito:', error);
+          try {
+            sessionStorage.removeItem(quickAddStorageKey);
+          } catch (storageError) {
+            console.error('Pulizia dei parametri Quick Add salvati non riuscita:', storageError);
+          }
+        }
+      }
       const LEGACY_STORAGE_KEYS = ['fintracker_clean_v4', 'fintracker_clean_v3'];
       ['risparmi-fintech-v1', 'risparmi-fintech-v2'].forEach(key => localStorage.removeItem(key));
       const firebaseConfigured = Object.values(firebaseConfig).every(Boolean);
@@ -1082,7 +1114,11 @@
           document.getElementById('authScreen').classList.add('hidden');
           document.getElementById('dashboard').classList.remove('hidden');
           render();
-          checkUrlParamsForQuickAdd();
+          setTimeout(() => {
+            if (currentSequence === authLoadSequence && auth.currentUser?.uid === user.uid) {
+              checkUrlParamsForQuickAdd();
+            }
+          }, 300);
         }).catch(error => {
           if (currentSequence !== authLoadSequence) return;
           activeUser = user;
@@ -1124,8 +1160,7 @@
       }
       function guessCategory(title, type) {
         const normalizedTitle = normalizeSearchText(title);
-        const categories = CATEGORIES[type];
-        if (!normalizedTitle) return type === 'expense' ? 'Spesa' : 'Altre entrate';
+        if (!normalizedTitle) return type === 'expense' ? 'Altro / Imprevisti' : 'Altre entrate';
 
         const matchingMovements = state.movements
           .filter(movement => movement?.type === type && typeof movement.description === 'string' && typeof movement.category === 'string')
@@ -1561,6 +1596,10 @@
         categoryInput.value = isSelectable ? category : 'Altro';
         updateCustomCategoryField();
         if (!isSelectable) customCategoryInput.value = category;
+        categoryInput.dispatchEvent(new Event('input', { bubbles: true }));
+        categoryInput.dispatchEvent(new Event('change', { bubbles: true }));
+        customCategoryInput.dispatchEvent(new Event('input', { bubbles: true }));
+        customCategoryInput.dispatchEvent(new Event('change', { bubbles: true }));
       }
       function applyGuessedCategory(title, type) {
         setCategorySelection(guessCategory(title, type), type);
@@ -1579,12 +1618,11 @@
         setCategorySelection('Spesa', 'expense');
         document.querySelectorAll('.toggle-option').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.type === 'expense')));
       }
-      function checkUrlParamsForQuickAdd() {
-        if (quickAddChecked) return;
+      function checkUrlParamsForQuickAdd(quickAddData = pendingQuickAdd) {
+        if (quickAddChecked || !quickAddData || !activeUser) return;
         quickAddChecked = true;
-        const params = new URLSearchParams(window.location.search);
-        const quickAddKeys = ['importo', 'amount', 'titolo', 'title', 'nome', 'tipo', 'type', 'carta', 'card', 'metodo', 'data', 'date'];
-        if (!quickAddKeys.some(key => params.has(key))) return;
+        const params = new URLSearchParams();
+        Object.entries(quickAddData || {}).forEach(([key, value]) => params.set(key, value));
         const getParam = (...keys) => {
           for (const key of keys) {
             const value = params.get(key);
@@ -1606,11 +1644,14 @@
           ? rawDate
           : todayKey;
 
-        prepareNewMovement();
+        document.getElementById('openAdd').click();
         document.getElementById('movementType').value = type;
-        document.getElementById('descriptionInput').value = title;
-        document.getElementById('amountInput').value = amount === null ? '' : amount.toFixed(2);
-        document.getElementById('dateInput').value = parsedDate;
+        const descriptionInput = document.getElementById('descriptionInput');
+        const amountInput = document.getElementById('amountInput');
+        const dateInput = document.getElementById('dateInput');
+        descriptionInput.value = title;
+        amountInput.value = amount === null ? '' : amount.toFixed(2);
+        dateInput.value = parsedDate;
         document.getElementById('paymentMethod').value = type === 'expense' && !['cash', 'contanti'].includes(paymentValue) ? 'card' : 'cash';
         document.getElementById('cardNameInput').value = type === 'expense' && document.getElementById('paymentMethod').value === 'card'
           ? !rawPayment || paymentValue.includes('trade') || ['card', 'carta'].includes(paymentValue) ? 'Trade Republic' : rawPayment
@@ -1618,9 +1659,26 @@
         updatePaymentFields();
         document.querySelectorAll('.toggle-option').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.type === type)));
         applyGuessedCategory(title, type);
+        [
+          descriptionInput,
+          amountInput,
+          dateInput,
+          document.getElementById('movementType'),
+          document.getElementById('paymentMethod'),
+          document.getElementById('cardNameInput'),
+          document.getElementById('categoryInput')
+        ].forEach(field => {
+          field.dispatchEvent(new Event('input', { bubbles: true }));
+          field.dispatchEvent(new Event('change', { bubbles: true }));
+        });
         document.getElementById('quickAddNotice').classList.remove('hidden');
-        document.getElementById('movementDialog').showModal();
         window.history.replaceState({}, document.title, window.location.pathname);
+        pendingQuickAdd = null;
+        try {
+          sessionStorage.removeItem(quickAddStorageKey);
+        } catch (error) {
+          console.error('Pulizia dei parametri Quick Add salvati non riuscita:', error);
+        }
       }
 
       document.getElementById('prevMonth').addEventListener('click', () => {
@@ -1657,9 +1715,11 @@
       });
       document.getElementById('categoryInput').addEventListener('pointerdown', () => { categoryTouched = true; });
       document.getElementById('categoryInput').addEventListener('keydown', () => { categoryTouched = true; });
-      document.getElementById('categoryInput').addEventListener('change', () => {
-        categoryTouched = true;
-        updateCustomCategoryField();
+      document.getElementById('categoryInput').addEventListener('change', event => {
+        if (event.isTrusted) {
+          categoryTouched = true;
+          updateCustomCategoryField();
+        }
       });
       document.querySelectorAll('.close-dialog').forEach(button => button.addEventListener('click', () => button.closest('dialog').close()));
       document.getElementById('movementForm').addEventListener('submit', event => {
