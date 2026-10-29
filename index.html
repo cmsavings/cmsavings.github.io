@@ -34,51 +34,104 @@
   <style>
     :root {
       color-scheme: dark;
+      --bg-body: #000000;
+      --bg-card: #09090b;
+      --text-main: #ffffff;
+      --text-muted: #a1a1aa;
+      --border-color: #1F1F1F;
+      --silver-color: #C8CDD5;
+      --card-shadow: inset 0 1px 0 0 rgba(200, 205, 213, 0.12);
+      --color-expense: #2E90FA;
+      --color-income: #D97706;
+      --color-expense-soft: rgba(12, 45, 72, 0.65);
+      --color-expense-border: #1E6091;
+      --color-income-soft: rgba(217, 119, 6, 0.12);
+    }
+    body.theme-classic {
+      --color-expense: #EF4444;
+      --color-income: #10B981;
+      --color-expense-soft: rgba(239, 68, 68, 0.14);
+      --color-expense-border: #EF4444;
+      --color-income-soft: rgba(16, 185, 129, 0.14);
+    }
+    body.theme-light {
+      color-scheme: light;
+      --bg-body: #F3F4F6;
+      --bg-card: #FFFFFF;
+      --text-main: #111827;
+      --text-muted: #4B5563;
+      --border-color: #E5E7EB;
+      --silver-color: #4B5563;
+      --card-shadow: 0 1px 3px rgba(17, 24, 39, 0.08);
+      --color-expense: #EF4444;
+      --color-income: #10B981;
+      --color-expense-soft: rgba(239, 68, 68, 0.1);
+      --color-expense-border: #EF4444;
+      --color-income-soft: rgba(16, 185, 129, 0.12);
     }
     * {
       box-sizing: border-box;
     }
     html, body, body.app-bg, body.app-bg > main {
-      background-color: #000000 !important;
-      color: #FFFFFF !important;
+      background-color: var(--bg-body) !important;
+      color: var(--text-main) !important;
       font-family: 'Inter', sans-serif;
+    }
+    .text-white {
+      color: var(--text-main) !important;
+    }
+    .border-line {
+      border-color: var(--border-color) !important;
+    }
+    .bg-line {
+      background-color: var(--border-color) !important;
+    }
+    .bg-positive {
+      background-color: var(--color-income) !important;
+    }
+    .theme-classic .bg-positive\/10,
+    .theme-light .bg-positive\/10 {
+      background-color: var(--color-income-soft) !important;
+    }
+    .theme-light .text-ink {
+      color: #000000 !important;
     }
     button, input, select {
       font: inherit;
     }
     .card-box, .modal-box, #weeklyTable {
-      background-color: #050505 !important;
-      border: 1px solid #1F1F1F !important;
-      color: #FFFFFF !important;
+      background-color: var(--bg-card) !important;
+      border: 1px solid var(--border-color) !important;
+      color: var(--text-main) !important;
       border-radius: 1.5rem !important;
-      box-shadow: inset 0 1px 0 0 rgba(200, 205, 213, 0.12);
+      box-shadow: var(--card-shadow);
       transition: border-color 180ms ease;
     }
     .card-box:hover {
-      border-color: #C8CDD5 !important;
+      border-color: var(--silver-color) !important;
     }
     .card-box *, .modal-box * {
-      border-color: #1F1F1F;
+      border-color: var(--border-color);
     }
     table, thead, tbody, tfoot, tr, th, td {
-      background-color: #050505 !important;
-      color: #FFFFFF !important;
+      background-color: var(--bg-card) !important;
+      color: var(--text-main) !important;
     }
     table {
-      border: 1px solid #1F1F1F !important;
+      border: 1px solid var(--border-color) !important;
       border-radius: 1.5rem !important;
-      box-shadow: inset 0 1px 0 0 rgba(200, 205, 213, 0.12);
+      box-shadow: var(--card-shadow);
     }
     table th, table td {
-      border-color: #1F1F1F !important;
+      border-color: var(--border-color) !important;
     }
     #weeklyTable thead th {
-      color: #C8CDD5 !important;
+      color: var(--silver-color) !important;
     }
     input, select {
-      background-color: #050505 !important;
-      border: 1px solid #1F1F1F !important;
-      color: #FFFFFF !important;
+      background-color: var(--bg-card) !important;
+      border: 1px solid var(--border-color) !important;
+      color: var(--text-main) !important;
       border-radius: 0.75rem;
       padding: 0.75rem 1rem !important;
       min-height: 46px;
@@ -87,57 +140,57 @@
       width: 100%;
     }
     #periodMode {
-      background-color: #050505 !important;
-      color: #C8CDD5 !important;
-      border-color: #1F1F1F !important;
+      background-color: var(--bg-card) !important;
+      color: var(--silver-color) !important;
+      border-color: var(--border-color) !important;
       width: auto;
     }
     input:focus, select:focus {
-      border-color: #C8CDD5 !important;
-      box-shadow: 0 0 0 3px rgba(200, 205, 213, 0.12);
+      border-color: var(--silver-color) !important;
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--silver-color) 20%, transparent);
     }
     .field::placeholder {
-      color: #666666 !important;
+      color: var(--text-muted) !important;
     }
     .text-positive {
-      color: #D97706 !important;
+      color: var(--color-income) !important;
     }
     .text-negative {
-      color: #2E90FA !important;
+      color: var(--color-expense) !important;
     }
     .text-muted {
-      color: #8A8F98 !important;
+      color: var(--text-muted) !important;
     }
     .secondary-control {
-      color: #C8CDD5 !important;
+      color: var(--silver-color) !important;
     }
     .movement-badge {
-      background-color: rgba(200, 205, 213, 0.08) !important;
-      border: 1px solid rgba(200, 205, 213, 0.28) !important;
-      color: #C8CDD5 !important;
+      background-color: color-mix(in srgb, var(--silver-color) 8%, transparent) !important;
+      border: 1px solid color-mix(in srgb, var(--silver-color) 28%, transparent) !important;
+      color: var(--silver-color) !important;
     }
     .icon-silver {
-      color: #C8CDD5 !important;
+      color: var(--silver-color) !important;
     }
     .change-positive {
-      background-color: rgba(217, 119, 6, 0.12) !important;
-      color: #D97706 !important;
+      background-color: var(--color-income-soft) !important;
+      color: var(--color-income) !important;
     }
     .change-negative {
-      background-color: rgba(12, 45, 72, 0.65) !important;
-      border: 1px solid #1E6091 !important;
-      color: #2E90FA !important;
+      background-color: var(--color-expense-soft) !important;
+      border: 1px solid var(--color-expense-border) !important;
+      color: var(--color-expense) !important;
     }
     .expense-surface {
-      background-color: #0C2D48 !important;
-      border: 1px solid #1E6091 !important;
+      background-color: var(--color-expense-soft) !important;
+      border: 1px solid var(--color-expense-border) !important;
     }
     .expense-tint {
-      background-color: rgba(12, 45, 72, 0.65) !important;
-      border: 1px solid #1E6091 !important;
+      background-color: var(--color-expense-soft) !important;
+      border: 1px solid var(--color-expense-border) !important;
     }
     .expense-dot {
-      background-color: #1E6091 !important;
+      background-color: var(--color-expense) !important;
     }
     .tabular {
       font-variant-numeric: tabular-nums;
@@ -148,29 +201,29 @@
     }
     .scrollbar-thin {
       scrollbar-width: thin;
-      scrollbar-color: #1F1F1F transparent;
+      scrollbar-color: var(--border-color) transparent;
     }
     dialog::backdrop {
-      background: rgba(0, 0, 0, 0.78);
+      background: color-mix(in srgb, var(--bg-body) 78%, transparent);
       backdrop-filter: blur(5px);
     }
     .toggle-option {
-      background-color: #000000 !important;
-      border: 1px solid #1F1F1F !important;
+      background-color: var(--bg-body) !important;
+      border: 1px solid var(--border-color) !important;
     }
     #movementDialog .toggle-option[data-type="expense"][aria-pressed="true"] {
-      background-color: #0C2D48 !important;
-      border-color: #2E90FA !important;
-      color: #2E90FA !important;
+      background-color: var(--color-expense-soft) !important;
+      border-color: var(--color-expense) !important;
+      color: var(--color-expense) !important;
     }
     #movementDialog .toggle-option[data-type="income"][aria-pressed="true"] {
-      background-color: rgba(217, 119, 6, 0.14) !important;
-      border-color: #D97706 !important;
-      color: #D97706 !important;
+      background-color: var(--color-income-soft) !important;
+      border-color: var(--color-income) !important;
+      color: var(--color-income) !important;
     }
     .view-option[aria-pressed="true"] {
-      background-color: #1F1F1F !important;
-      color: #C8CDD5 !important;
+      background-color: var(--border-color) !important;
+      color: var(--silver-color) !important;
     }
     .table-cell {
       padding: 0.9rem 0.8rem;
@@ -178,14 +231,14 @@
     }
     #authScreen {
       min-height: 100vh;
-      background: #000000;
+      background: var(--bg-body);
     }
     #authScreen .auth-panel {
       width: min(100% - 2rem, 420px);
-      background: #050505;
-      border: 1px solid #1F1F1F;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
       border-radius: 1.5rem;
-      box-shadow: inset 0 1px 0 0 rgba(200, 205, 213, 0.12);
+      box-shadow: var(--card-shadow);
     }
     .password-toggle {
       position: absolute;
@@ -193,11 +246,180 @@
       right: 15px;
       transform: translateY(-50%);
       cursor: pointer;
-      color: #C8CDD5;
+      color: var(--silver-color);
+    }
+    #themeToggle {
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-main);
+    }
+    #themeMenuOptions {
+      z-index: 60;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+    }
+    #themeMenuOptions [data-theme-option] {
+      color: var(--text-main);
+    }
+    #themeMenuOptions [data-theme-option]:hover,
+    #themeMenuOptions [data-theme-option][aria-checked="true"] {
+      background: color-mix(in srgb, var(--text-muted) 12%, transparent);
+    }
+    .theme-light .card-box:hover {
+      border-color: var(--border-color) !important;
+    }
+    .category-legend-dot {
+      background-color: var(--legend-color);
     }
     @media (max-width: 640px) {
       .chart-wrap { height: 240px; }
       .table-cell { padding: 0.75rem 0.6rem; }
+    }
+    @media (max-width: 768px) {
+      #dashboardHeader {
+        flex-wrap: nowrap;
+        gap: 0.25rem;
+        margin-bottom: 1.25rem;
+      }
+      #headerBrandControls, #headerPeriodControls {
+        min-width: 0;
+        gap: 0.25rem;
+        flex-wrap: nowrap;
+      }
+      #brandTitle { display: none; }
+      #headerBrandControls > a { gap: 0; }
+      #headerBrandControls > a > span:first-child {
+        width: 2rem;
+        height: 2rem;
+      }
+      #logoutButton {
+        padding: 0.35rem 0.45rem;
+        font-size: 0.65rem;
+      }
+      #themeToggle {
+        padding: 0.3rem 0.45rem;
+        font-size: 0.6rem;
+      }
+      #periodMode {
+        max-width: 42px;
+        min-height: 34px;
+        padding: 0.35rem 0.7rem 0.35rem 0.35rem !important;
+        font-size: 0.65rem;
+      }
+      #headerPeriodControls > .card-box {
+        gap: 0;
+        padding: 0.15rem;
+      }
+      #prevMonth, #nextMonth {
+        width: 1.15rem;
+        height: 1.15rem;
+      }
+      #monthLabel {
+        min-width: 0;
+        max-width: 2.5rem;
+        overflow: hidden;
+        padding: 0 0.1rem;
+        font-size: 0.6rem;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      #openAdd {
+        height: 2rem;
+        gap: 0.15rem;
+        padding: 0 0.3rem;
+        font-size: 0.6rem;
+        white-space: nowrap;
+      }
+      #openAdd > span { font-size: 1rem; }
+      #kpiSection {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.5rem;
+      }
+      #kpiSection .kpi-card {
+        min-width: 0;
+        padding: 0.55rem !important;
+      }
+      #kpiSection .kpi-label,
+      #kpiSection .kpi-count {
+        overflow: hidden;
+        font-size: 0.7rem;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      #kpiSection .kpi-value {
+        overflow: hidden;
+        margin-top: 0.55rem;
+        font-size: 0.75rem;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      #kpiSection .kpi-icon {
+        width: 1rem;
+        height: 1rem;
+      }
+      #kpiSection .kpi-opening-row {
+        flex-wrap: nowrap;
+        gap: 0.15rem;
+        margin-top: 0.45rem;
+      }
+      #kpiSection .kpi-opening {
+        min-width: 0;
+        overflow: hidden;
+        font-size: 0.55rem;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      #kpiSection #editOpening {
+        flex: 0 0 auto;
+        padding: 0.15rem;
+        font-size: 0.55rem;
+      }
+      #kpiSection .kpi-change {
+        max-width: 100%;
+        overflow: hidden;
+        margin-top: 0.45rem;
+        padding: 0.2rem 0.25rem;
+        gap: 0.15rem;
+        font-size: 0.55rem;
+        white-space: nowrap;
+      }
+      #kpiSection .kpi-change > span:last-child {
+        display: none;
+      }
+    }
+    @media (max-width: 360px) {
+      #headerBrandControls, #headerPeriodControls { gap: 0.1rem; }
+      #headerBrandControls > a > span:first-child {
+        width: 1.75rem;
+        height: 1.75rem;
+      }
+      #themeToggle {
+        padding: 0.25rem 0.3rem;
+        font-size: 0.52rem;
+      }
+      #logoutButton {
+        padding: 0.25rem 0.3rem;
+        font-size: 0.58rem;
+      }
+      #periodMode {
+        max-width: 42px;
+        padding-right: 0.6rem !important;
+        font-size: 0.6rem;
+      }
+      #prevMonth, #nextMonth {
+        width: 1.1rem;
+        height: 1.1rem;
+      }
+      #monthLabel {
+        max-width: 2.15rem;
+        font-size: 0.55rem;
+      }
+      #openAdd {
+        gap: 0.1rem;
+        padding: 0;
+        font-size: 0.45rem;
+      }
     }
   </style>
 </head>
@@ -270,17 +492,33 @@
     </div>
   </div>
   <main id="dashboard" class="hidden mx-auto max-w-7xl px-4 pb-14 pt-7 sm:px-6 lg:px-8">
-    <header class="mb-8 flex flex-wrap items-center justify-between gap-4">
-      <div class="flex items-center gap-4">
+    <header id="dashboardHeader" class="mb-8 flex flex-nowrap items-center justify-between gap-2">
+      <div id="headerBrandControls" class="flex min-w-0 items-center gap-2">
         <a href="#" class="flex items-center gap-3" aria-label="Bilancio, pagina iniziale">
           <span class="grid h-10 w-10 place-items-center rounded-xl bg-positive text-ink">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 17.5 9.2 12l3.3 3.2L20 7.5M14.5 7.5H20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </span>
-          <span class="block text-base font-semibold tracking-tight">Bilancio</span>
+          <span id="brandTitle" class="block text-base font-semibold tracking-tight">Bilancio</span>
         </a>
+        <div id="themeMenu" class="relative">
+          <button id="themeToggle" type="button" class="flex items-center gap-1 rounded-lg px-2 py-2 text-xs transition hover:bg-white/5" aria-label="Tema" aria-haspopup="menu" aria-expanded="false">
+            <span>Tema</span><span aria-hidden="true">▾</span>
+          </button>
+          <div id="themeMenuOptions" class="absolute right-0 mt-2 hidden w-52 overflow-hidden rounded-xl p-1" role="menu" aria-label="Scegli tema">
+            <button type="button" class="w-full rounded-lg px-3 py-2.5 text-left text-sm" role="menuitemradio" data-theme-option="main" aria-checked="true">
+              <span class="block font-medium">Principale</span><span class="mt-0.5 block text-xs text-muted">Scuro, Blu/Arancio</span>
+            </button>
+            <button type="button" class="w-full rounded-lg px-3 py-2.5 text-left text-sm" role="menuitemradio" data-theme-option="classic" aria-checked="false">
+              <span class="block font-medium">Classico</span><span class="mt-0.5 block text-xs text-muted">Scuro, Rosso/Verde</span>
+            </button>
+            <button type="button" class="w-full rounded-lg px-3 py-2.5 text-left text-sm" role="menuitemradio" data-theme-option="light" aria-checked="false">
+              <span class="block font-medium">Chiaro</span><span class="mt-0.5 block text-xs text-muted">Bianco, Rosso/Verde</span>
+            </button>
+          </div>
+        </div>
         <button id="logoutButton" type="button" class="secondary-control rounded-lg border border-line px-3 py-2 text-sm transition hover:bg-white/5">Esci</button>
       </div>
-      <div class="flex items-center gap-3">
+      <div id="headerPeriodControls" class="flex min-w-0 flex-nowrap items-center gap-2">
         <label class="sr-only" for="periodMode">Intervallo del bilancio</label>
         <select id="periodMode" class="field w-auto py-2.5 text-sm">
           <option value="month">Mese</option>
@@ -301,30 +539,30 @@
       </div>
     </header>
 
-    <section id="kpiSection" aria-label="Riepilogo del periodo" class="mb-6 grid gap-4 md:grid-cols-3">
-      <article class="card-box p-5 sm:p-6">
+    <section id="kpiSection" aria-label="Riepilogo del periodo" class="mb-6 grid grid-cols-3 gap-2 md:gap-4">
+      <article class="card-box kpi-card p-5 sm:p-6">
         <div class="flex items-center justify-between">
-          <p class="text-sm text-muted">Saldo complessivo</p>
-          <span class="icon-silver grid h-9 w-9 place-items-center rounded-xl bg-white/[.04]">
+          <p class="kpi-label text-sm text-muted">Saldo complessivo</p>
+          <span class="icon-silver kpi-icon grid h-9 w-9 place-items-center rounded-xl bg-white/[.04]">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="13" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M3 10h18M16 15h2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
           </span>
         </div>
-        <p id="balanceValue" class="tabular mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">—</p>
-        <div class="mt-4 flex flex-wrap items-center justify-between gap-2">
-          <p class="text-xs text-muted"><span id="openingLabel">Saldo a inizio mese:</span> <span id="openingBalance" class="tabular text-white">—</span></p>
+        <p id="balanceValue" class="kpi-value tabular mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">—</p>
+        <div class="kpi-opening-row mt-4 flex flex-wrap items-center justify-between gap-2">
+          <p class="kpi-opening text-xs text-muted"><span id="openingLabel">Saldo a inizio mese:</span> <span id="openingBalance" class="tabular text-white">—</span></p>
           <button id="editOpening" class="secondary-control rounded-md px-2 py-1 text-xs transition hover:bg-white/5 hover:text-white" aria-label="Modifica saldo a inizio mese">Modifica</button>
         </div>
-        <div id="monthlyChange" class="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-white/[.04] px-2.5 py-1.5 text-xs font-medium tabular"></div>
+        <div id="monthlyChange" class="kpi-change mt-4 inline-flex items-center gap-1.5 rounded-lg bg-white/[.04] px-2.5 py-1.5 text-xs font-medium tabular"></div>
       </article>
-      <article class="card-box p-5 sm:p-6">
-        <div class="flex items-center justify-between"><p class="text-sm text-muted">Spese del mese</p><span class="expense-dot h-2 w-2 rounded-full"></span></div>
-        <p id="expenseValue" class="tabular mt-5 text-3xl font-semibold tracking-tight text-negative sm:text-4xl">—</p>
-        <p id="expenseCount" class="mt-3 text-xs text-muted">—</p>
+      <article class="card-box kpi-card p-5 sm:p-6">
+        <div class="flex items-center justify-between"><p class="kpi-label text-sm text-muted">Spese del mese</p><span class="expense-dot h-2 w-2 rounded-full"></span></div>
+        <p id="expenseValue" class="kpi-value tabular mt-5 text-3xl font-semibold tracking-tight text-negative sm:text-4xl">—</p>
+        <p id="expenseCount" class="kpi-count mt-3 text-xs text-muted">—</p>
       </article>
-      <article class="card-box p-5 sm:p-6">
-        <div class="flex items-center justify-between"><p class="text-sm text-muted">Introiti del mese</p><span class="h-2 w-2 rounded-full bg-positive"></span></div>
-        <p id="incomeValue" class="tabular mt-5 text-3xl font-semibold tracking-tight text-positive sm:text-4xl">—</p>
-        <p id="incomeCount" class="mt-3 text-xs text-muted">—</p>
+      <article class="card-box kpi-card p-5 sm:p-6">
+        <div class="flex items-center justify-between"><p class="kpi-label text-sm text-muted">Introiti del mese</p><span class="h-2 w-2 rounded-full bg-positive"></span></div>
+        <p id="incomeValue" class="kpi-value tabular mt-5 text-3xl font-semibold tracking-tight text-positive sm:text-4xl">—</p>
+        <p id="incomeCount" class="kpi-count mt-3 text-xs text-muted">—</p>
       </article>
     </section>
 
@@ -480,6 +718,13 @@
       }
       const firebaseReady = Boolean(auth && db && googleProvider);
       const COLORS = ['#D97706', '#1E6091', '#C8CDD5', '#2E90FA', '#FFB800', '#0C2D48', '#8A8F98', '#D96B27'];
+      const savedTheme = localStorage.getItem('appTheme');
+      const initialTheme = ['main', 'classic', 'light'].includes(savedTheme) ? savedTheme : 'main';
+      document.body.classList.toggle('theme-classic', initialTheme === 'classic');
+      document.body.classList.toggle('theme-light', initialTheme === 'light');
+      document.querySelectorAll('[data-theme-option]').forEach(option => {
+        option.setAttribute('aria-checked', String(option.dataset.themeOption === initialTheme));
+      });
       const CATEGORIES = {
         expense: ['Spesa', 'Pasti fuori', 'Affitto & Casa', 'Bollette & Utenze', 'Trasporti', 'Università & Studio', 'Sanità', 'Cura Personale', 'Vestiario', 'Svago & Hobby', 'Abbonamenti', 'Viaggi', 'Regali', 'Altro'],
         income: ['Famiglia', 'Stipendio / Lavoretti', 'Regali ricevuti', 'Rimborsi / Vendita usato', 'Altre entrate', 'Altro']
@@ -780,6 +1025,66 @@
           </div>`;
         }).join('');
       }
+      function getThemeColors() {
+        const styles = getComputedStyle(document.body);
+        return {
+          expense: styles.getPropertyValue('--color-expense').trim(),
+          income: styles.getPropertyValue('--color-income').trim(),
+          textMain: styles.getPropertyValue('--text-main').trim(),
+          textMuted: styles.getPropertyValue('--text-muted').trim(),
+          background: styles.getPropertyValue('--bg-card').trim(),
+          border: styles.getPropertyValue('--border-color').trim()
+        };
+      }
+      function getCategoryColors(count) {
+        const theme = getThemeColors();
+        return Array.from({ length: count }, (_, index) => {
+          const color = COLORS[index % COLORS.length];
+          if (color === '#D97706') return theme.income;
+          if (color === '#2E90FA') return theme.expense;
+          return color;
+        });
+      }
+      function savingsGradient(context, color) {
+        const match = color.match(/^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i);
+        if (!match) throw new Error(`Colore tema non valido: ${color}`);
+        const [, red, green, blue] = match.map((value, index) => index ? parseInt(value, 16) : value);
+        const gradient = context.createLinearGradient(0, 0, 0, 280);
+        gradient.addColorStop(0, `rgba(${red}, ${green}, ${blue}, 0.22)`);
+        gradient.addColorStop(1, `rgba(${red}, ${green}, ${blue}, 0.0)`);
+        return gradient;
+      }
+      function updateChartsForTheme() {
+        const theme = getThemeColors();
+        if (categoryChart) {
+          const colors = getCategoryColors(categoryChart.data.datasets[0].data.length);
+          categoryChart.data.datasets[0].backgroundColor = colors;
+          categoryChart.data.datasets[0].borderColor = theme.background;
+          document.querySelectorAll('.category-legend-dot').forEach((dot, index) => {
+            dot.style.setProperty('--legend-color', colors[index % colors.length]);
+          });
+          categoryChart.options.plugins.tooltip.backgroundColor = theme.background;
+          categoryChart.options.plugins.tooltip.borderColor = theme.border;
+          categoryChart.options.plugins.tooltip.titleColor = theme.textMuted;
+          categoryChart.options.plugins.tooltip.bodyColor = theme.textMain;
+          categoryChart.update();
+        }
+        if (savingsChart) {
+          const dataset = savingsChart.data.datasets[0];
+          dataset.borderColor = theme.income;
+          dataset.pointBackgroundColor = theme.income;
+          dataset.pointBorderColor = theme.background;
+          dataset.backgroundColor = savingsGradient(savingsChart.ctx, theme.income);
+          savingsChart.options.scales.x.ticks.color = theme.textMuted;
+          savingsChart.options.scales.y.ticks.color = theme.textMuted;
+          savingsChart.options.scales.y.grid.color = theme.border;
+          savingsChart.options.plugins.tooltip.backgroundColor = theme.background;
+          savingsChart.options.plugins.tooltip.borderColor = theme.border;
+          savingsChart.options.plugins.tooltip.titleColor = theme.textMuted;
+          savingsChart.options.plugins.tooltip.bodyColor = theme.textMain;
+          savingsChart.update();
+        }
+      }
       function renderCategoryChart(expenses) {
         const categories = new Map();
         expenses.forEach(item => categories.set(item.category, (categories.get(item.category) || 0) + item.amount));
@@ -789,9 +1094,10 @@
         document.getElementById('categoryChart').classList.toggle('hidden', !entries.length);
         document.getElementById('donutCenter').classList.toggle('hidden', !entries.length);
         document.getElementById('categoryEmpty').classList.toggle('hidden', entries.length > 0);
+        const colors = getCategoryColors(entries.length);
         document.getElementById('categoryLegend').innerHTML = entries.length ? entries.slice(0, 6).map(([name, value], index) => {
           const percent = total ? value / total * 100 : 0;
-          return `<div class="flex items-center gap-2.5"><span class="h-2.5 w-2.5 shrink-0 rounded-full" style="background:${COLORS[index % COLORS.length]}"></span><span class="min-w-0 flex-1 truncate text-xs text-muted">${escapeHtml(name)}</span><span class="tabular text-right text-xs text-white">${money.format(value)}<span class="ml-1 text-muted">${percent.toLocaleString('it-IT', { maximumFractionDigits: 1 })}%</span></span></div>`;
+          return `<div class="flex items-center gap-2.5"><span class="category-legend-dot h-2.5 w-2.5 shrink-0 rounded-full" style="--legend-color:${colors[index]}"></span><span class="min-w-0 flex-1 truncate text-xs text-muted">${escapeHtml(name)}</span><span class="tabular text-right text-xs text-white">${money.format(value)}<span class="ml-1 text-muted">${percent.toLocaleString('it-IT', { maximumFractionDigits: 1 })}%</span></span></div>`;
         }).join('') : '<p class="py-6 text-center text-xs text-muted">Nessuna spesa da mostrare</p>';
         if (categoryChart) categoryChart.destroy();
         if (!entries.length) {
@@ -800,8 +1106,8 @@
         }
         categoryChart = new Chart(document.getElementById('categoryChart'), {
           type: 'doughnut',
-          data: { labels: entries.map(entry => entry[0]), datasets: [{ data: entries.map(entry => entry[1]), backgroundColor: entries.map((_, index) => COLORS[index % COLORS.length]), borderColor: '#050505', borderWidth: 4, hoverOffset: 6 }] },
-          options: { responsive: true, maintainAspectRatio: false, cutout: '76%', plugins: { legend: { display: false }, tooltip: { backgroundColor: '#050505', borderColor: '#1F1F1F', titleColor: '#C8CDD5', bodyColor: '#FFFFFF', borderWidth: 1, padding: 11, callbacks: { label: context => ` ${context.label}: ${money.format(context.raw)} (${total ? (context.raw / total * 100).toLocaleString('it-IT', { maximumFractionDigits: 1 }) : '0'}%)` } } } }
+          data: { labels: entries.map(entry => entry[0]), datasets: [{ data: entries.map(entry => entry[1]), backgroundColor: colors, borderColor: getThemeColors().background, borderWidth: 4, hoverOffset: 6 }] },
+          options: { responsive: true, maintainAspectRatio: false, cutout: '76%', plugins: { legend: { display: false }, tooltip: { backgroundColor: getThemeColors().background, borderColor: getThemeColors().border, titleColor: getThemeColors().textMuted, bodyColor: getThemeColors().textMain, borderWidth: 1, padding: 11, callbacks: { label: context => ` ${context.label}: ${money.format(context.raw)} (${total ? (context.raw / total * 100).toLocaleString('it-IT', { maximumFractionDigits: 1 }) : '0'}%)` } } } }
         });
       }
       function renderSavingsChart() {
@@ -833,13 +1139,12 @@
           values = monthKeys.map(key => monthBalance(key));
         }
         const context = document.getElementById('savingsChart').getContext('2d');
-        const gradient = context.createLinearGradient(0, 0, 0, 280);
-        gradient.addColorStop(0, 'rgba(217, 119, 6, 0.22)');
-        gradient.addColorStop(1, 'rgba(217, 119, 6, 0.0)');
+        const theme = getThemeColors();
+        const gradient = savingsGradient(context, theme.income);
         savingsChart = new Chart(context, {
           type: 'line',
-          data: { labels, datasets: [{ data: values, borderColor: '#D97706', backgroundColor: gradient, fill: true, tension: .38, borderWidth: 2.5, pointRadius: 3, pointHoverRadius: 5, pointBackgroundColor: '#D97706', pointBorderColor: '#050505', pointBorderWidth: 2 }] },
-          options: { responsive: true, maintainAspectRatio: false, interaction: { intersect: false, mode: 'index' }, plugins: { legend: { display: false }, tooltip: { backgroundColor: '#050505', borderColor: '#1F1F1F', titleColor: '#C8CDD5', bodyColor: '#FFFFFF', borderWidth: 1, padding: 11, callbacks: { label: context => ` ${money.format(context.raw)}` } } }, scales: { x: { grid: { display: false }, border: { display: false }, ticks: { color: '#8A8F98', maxRotation: 0 } }, y: { grid: { color: '#2A2D34', borderDash: [3, 6] }, border: { display: false, dash: [3, 6] }, ticks: { color: '#8A8F98', maxTicksLimit: 5, callback: value => new Intl.NumberFormat('it-IT', { notation: 'compact', maximumFractionDigits: 1 }).format(value) } } } }
+          data: { labels, datasets: [{ data: values, borderColor: theme.income, backgroundColor: gradient, fill: true, tension: .38, borderWidth: 2.5, pointRadius: 3, pointHoverRadius: 5, pointBackgroundColor: theme.income, pointBorderColor: theme.background, pointBorderWidth: 2 }] },
+          options: { responsive: true, maintainAspectRatio: false, interaction: { intersect: false, mode: 'index' }, plugins: { legend: { display: false }, tooltip: { backgroundColor: theme.background, borderColor: theme.border, titleColor: theme.textMuted, bodyColor: theme.textMain, borderWidth: 1, padding: 11, callbacks: { label: context => ` ${money.format(context.raw)}` } } }, scales: { x: { grid: { display: false }, border: { display: false }, ticks: { color: theme.textMuted, maxRotation: 0 } }, y: { grid: { color: theme.border, borderDash: [3, 6] }, border: { display: false, dash: [3, 6] }, ticks: { color: theme.textMuted, maxTicksLimit: 5, callback: value => new Intl.NumberFormat('it-IT', { notation: 'compact', maximumFractionDigits: 1 }).format(value) } } } }
         });
       }
       function setTableHeaders(labels) {
@@ -935,7 +1240,10 @@
       function render() {
         const date = parseMonth(selectedMonth);
         const year = date.getFullYear();
-        document.getElementById('monthLabel').textContent = periodMode === 'year' ? String(year) : date.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
+        const mobileMonth = window.matchMedia('(max-width: 768px)').matches;
+        document.getElementById('monthLabel').textContent = periodMode === 'year'
+          ? String(year)
+          : date.toLocaleDateString('it-IT', { month: mobileMonth ? 'short' : 'long', year: mobileMonth ? '2-digit' : 'numeric' }).replace('.', '');
         document.getElementById('prevMonth').setAttribute('aria-label', periodMode === 'year' ? 'Anno precedente' : 'Mese precedente');
         document.getElementById('nextMonth').setAttribute('aria-label', periodMode === 'year' ? 'Anno successivo' : 'Mese successivo');
         document.getElementById('periodMode').value = periodMode;
@@ -1152,6 +1460,39 @@
         selectedMonth = monthKey(now);
         render();
         showToast('Dati azzerati.');
+      });
+      const themeToggle = document.getElementById('themeToggle');
+      const themeMenuOptions = document.getElementById('themeMenuOptions');
+      function closeThemeMenu() {
+        themeMenuOptions.classList.add('hidden');
+        themeToggle.setAttribute('aria-expanded', 'false');
+      }
+      themeToggle.addEventListener('click', () => {
+        const isExpanded = themeToggle.getAttribute('aria-expanded') === 'true';
+        themeToggle.setAttribute('aria-expanded', String(!isExpanded));
+        themeMenuOptions.classList.toggle('hidden', isExpanded);
+      });
+      document.querySelectorAll('[data-theme-option]').forEach(option => option.addEventListener('click', () => {
+        const theme = ['main', 'classic', 'light'].includes(option.dataset.themeOption) ? option.dataset.themeOption : 'main';
+        document.body.classList.toggle('theme-classic', theme === 'classic');
+        document.body.classList.toggle('theme-light', theme === 'light');
+        document.querySelectorAll('[data-theme-option]').forEach(item => {
+          item.setAttribute('aria-checked', String(item.dataset.themeOption === theme));
+        });
+        try {
+          localStorage.setItem('appTheme', theme);
+        } catch (error) {
+          console.error('Salvataggio della preferenza tema non riuscito:', error);
+          showToast('Impossibile salvare la preferenza del tema.');
+        }
+        updateChartsForTheme();
+        closeThemeMenu();
+      }));
+      document.addEventListener('click', event => {
+        if (!event.target.closest('#themeMenu')) closeThemeMenu();
+      });
+      document.addEventListener('keydown', event => {
+        if (event.key === 'Escape') closeThemeMenu();
       });
       document.getElementById('showRegisterView').addEventListener('click', () => {
         document.getElementById('loginView').classList.add('hidden');
