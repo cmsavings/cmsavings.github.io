@@ -240,6 +240,26 @@
       border-radius: 1.5rem;
       box-shadow: var(--card-shadow);
     }
+    #authScreen .bg-positive {
+      background-color: #2E90FA !important;
+      color: #ffffff !important;
+    }
+    #authScreen .text-positive {
+      color: #2E90FA !important;
+    }
+    #authScreen input:focus {
+      border-color: #2E90FA !important;
+      box-shadow: 0 0 0 2px rgba(46, 144, 250, 0.25) !important;
+    }
+    #authScreen #signInButton,
+    #authScreen #registerButton {
+      background-color: #2E90FA !important;
+      color: #ffffff !important;
+    }
+    #authScreen #signInButton:hover,
+    #authScreen #registerButton:hover {
+      filter: brightness(1.1);
+    }
     .password-toggle {
       position: absolute;
       top: 50%;
@@ -278,148 +298,227 @@
     }
     @media (max-width: 768px) {
       #dashboardHeader {
-        flex-wrap: nowrap;
-        gap: 0.25rem;
-        margin-bottom: 1.25rem;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
       }
-      #headerBrandControls, #headerPeriodControls {
-        min-width: 0;
-        gap: 0.25rem;
-        flex-wrap: nowrap;
+      #headerBrandControls {
+        width: 100%;
+        justify-content: space-between;
+        gap: 0.5rem;
       }
-      #brandTitle { display: none; }
-      #headerBrandControls > a { gap: 0; }
-      #headerBrandControls > a > span:first-child {
-        width: 2rem;
-        height: 2rem;
+      #headerBrandControls > a {
+        flex: 0 0 auto;
+        gap: 0.75rem;
       }
-      #logoutButton {
-        padding: 0.35rem 0.45rem;
-        font-size: 0.65rem;
-      }
-      #themeToggle {
-        padding: 0.3rem 0.45rem;
-        font-size: 0.6rem;
+      #brandTitle { display: block; }
+      #themeMenu { margin-left: auto; }
+      #headerPeriodControls {
+        width: 100%;
+        display: grid;
+        grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+        gap: 0.5rem;
       }
       #periodMode {
-        max-width: 42px;
-        min-height: 34px;
-        padding: 0.35rem 0.7rem 0.35rem 0.35rem !important;
-        font-size: 0.65rem;
+        width: 100%;
+        max-width: none;
+        min-height: 46px;
+        padding: 0.65rem 2rem 0.65rem 0.85rem !important;
+        font-size: 0.875rem;
       }
       #headerPeriodControls > .card-box {
-        gap: 0;
-        padding: 0.15rem;
+        width: 100%;
+        min-width: 0;
+        justify-content: space-between;
+        gap: 0.25rem;
+        padding: 0.25rem;
       }
       #prevMonth, #nextMonth {
-        width: 1.15rem;
-        height: 1.15rem;
+        width: 2.5rem;
+        height: 2.5rem;
+        flex: 0 0 auto;
       }
       #monthLabel {
         min-width: 0;
-        max-width: 2.5rem;
-        overflow: hidden;
-        padding: 0 0.1rem;
-        font-size: 0.6rem;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        max-width: none;
+        flex: 1;
+        padding: 0 0.25rem;
+        font-size: 0.875rem;
       }
       #openAdd {
-        height: 2rem;
-        gap: 0.15rem;
-        padding: 0 0.3rem;
-        font-size: 0.6rem;
-        white-space: nowrap;
+        position: fixed;
+        right: 20px;
+        bottom: 24px;
+        z-index: 50;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 58px;
+        height: 58px;
+        gap: 0;
+        padding: 0 !important;
+        border-radius: 50%;
+        background-color: var(--color-income) !important;
+        color: #ffffff !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+        font-size: 1rem;
+        line-height: 1 !important;
       }
-      #openAdd > span { font-size: 1rem; }
+      #openAdd:hover { filter: brightness(1.1); }
+      #openAdd > .add-icon {
+        margin: 0 !important;
+        transform: none !important;
+        font-size: 1.75rem;
+        line-height: 1 !important;
+      }
+      #openAdd > .add-label { display: none; }
+      #dashboard { padding-bottom: 90px !important; }
       #kpiSection {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 0.5rem;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.75rem;
       }
       #kpiSection .kpi-card {
         min-width: 0;
-        padding: 0.55rem !important;
+        padding: 1rem !important;
       }
-      #kpiSection .kpi-label,
+      #kpiSection .kpi-card:first-child {
+        grid-column: span 2;
+        padding: 1.25rem !important;
+      }
+      #kpiSection .kpi-label {
+        font-size: 0.8rem;
+      }
       #kpiSection .kpi-count {
-        overflow: hidden;
         font-size: 0.7rem;
-        text-overflow: ellipsis;
-        white-space: nowrap;
       }
-      #kpiSection .kpi-value {
-        overflow: hidden;
-        margin-top: 0.55rem;
-        font-size: 0.75rem;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+      #kpiSection .kpi-card:first-child .kpi-value {
+        margin-top: 1rem;
+        font-size: 1.85rem;
+        overflow-wrap: anywhere;
       }
-      #kpiSection .kpi-icon {
-        width: 1rem;
-        height: 1rem;
+      #kpiSection .kpi-card:not(:first-child) .kpi-value {
+        margin-top: 0.85rem;
+        font-size: 1.25rem;
+        overflow-wrap: anywhere;
       }
-      #kpiSection .kpi-opening-row {
-        flex-wrap: nowrap;
-        gap: 0.15rem;
-        margin-top: 0.45rem;
+      #kpiSection .kpi-card:first-child .kpi-opening-row {
+        flex-wrap: wrap;
+        gap: 0.5rem;
       }
       #kpiSection .kpi-opening {
-        min-width: 0;
-        overflow: hidden;
-        font-size: 0.55rem;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-      #kpiSection #editOpening {
-        flex: 0 0 auto;
-        padding: 0.15rem;
-        font-size: 0.55rem;
+        font-size: 0.7rem;
       }
       #kpiSection .kpi-change {
         max-width: 100%;
-        overflow: hidden;
-        margin-top: 0.45rem;
-        padding: 0.2rem 0.25rem;
-        gap: 0.15rem;
-        font-size: 0.55rem;
-        white-space: nowrap;
+        flex-wrap: wrap;
+        font-size: 0.7rem;
       }
-      #kpiSection .kpi-change > span:last-child {
+      #categoryChartLayout {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+      }
+      #categoryChartLayout > div:first-child {
+        width: 100%;
+      }
+      #categoryLegend {
+        width: 100%;
+      }
+      #expenseList > .group,
+      #incomeList > .group {
+        align-items: flex-start;
+        padding: 12px 10px;
+      }
+      #expenseList > .group > .min-w-0 > div:first-child,
+      #incomeList > .group > .min-w-0 > div:first-child {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+      #expenseList .movement-badge,
+      #incomeList .movement-badge {
+        max-width: 100%;
+        white-space: normal;
+        overflow-wrap: anywhere;
+      }
+      .tracking-table-scroll {
+        overflow-x: visible !important;
+      }
+      #weeklyTable {
+        display: block;
+        width: 100% !important;
+        min-width: 0 !important;
+        border: 0 !important;
+        box-shadow: none !important;
+      }
+      #weeklyTable thead {
         display: none;
       }
-    }
-    @media (max-width: 360px) {
-      #headerBrandControls, #headerPeriodControls { gap: 0.1rem; }
-      #headerBrandControls > a > span:first-child {
-        width: 1.75rem;
-        height: 1.75rem;
+      #weeklyTable tbody,
+      #weeklyTable tfoot {
+        display: block;
+        width: 100%;
       }
-      #themeToggle {
-        padding: 0.25rem 0.3rem;
-        font-size: 0.52rem;
+      #weeklyTable tbody tr,
+      #weeklyTable tfoot tr {
+        display: block;
+        width: 100%;
+        margin-bottom: 10px;
+        padding: 10px 12px;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.03) !important;
       }
-      #logoutButton {
-        padding: 0.25rem 0.3rem;
-        font-size: 0.58rem;
+      #weeklyTable tbody td,
+      #weeklyTable tfoot td {
+        display: flex;
+        width: 100%;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 4px 0 !important;
+        border: none !important;
+        font-size: 0.8rem;
+        text-align: right;
+        white-space: normal;
       }
-      #periodMode {
-        max-width: 42px;
-        padding-right: 0.6rem !important;
-        font-size: 0.6rem;
+      #weeklyTable tbody td::before,
+      #weeklyTable tfoot td::before {
+        content: attr(data-label);
+        color: var(--text-muted);
+        font-weight: 500;
+        text-align: left;
       }
-      #prevMonth, #nextMonth {
-        width: 1.1rem;
-        height: 1.1rem;
+      #weeklyTable tbody td:first-child,
+      #weeklyTable tfoot td:first-child {
+        display: block;
+        padding: 0 0 6px !important;
+        margin-bottom: 4px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+        font-size: 0.9rem;
+        font-weight: 700;
+        text-align: left;
       }
-      #monthLabel {
-        max-width: 2.15rem;
-        font-size: 0.55rem;
+      #weeklyTable tbody td:first-child::before,
+      #weeklyTable tfoot td:first-child::before {
+        content: none;
       }
-      #openAdd {
-        gap: 0.1rem;
-        padding: 0;
-        font-size: 0.45rem;
+      #weeklyTable tbody tr.weekly-empty-row td {
+        display: block;
+        padding: 16px 8px !important;
+        font-size: 0.875rem;
+        text-align: center;
+        white-space: normal;
+        overflow-wrap: anywhere;
       }
+      #weeklyTable tbody tr.weekly-empty-row td::before { content: none; }
+      #dashboard footer {
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      #footerActions { gap: 10px; }
     }
   </style>
 </head>
@@ -534,7 +633,7 @@
           </button>
         </div>
         <button id="openAdd" class="flex h-11 items-center gap-2 rounded-xl bg-positive px-4 text-sm font-bold text-ink transition hover:bg-[#FFB52E]">
-          <span class="text-xl leading-none">+</span> Aggiungi
+          <span class="add-icon text-xl leading-none">+</span><span class="add-label">Aggiungi</span>
         </button>
       </div>
     </header>
@@ -572,7 +671,7 @@
           <div><h2 class="font-semibold">Spese per categoria</h2><p class="mt-1 text-xs text-muted">Come hai distribuito le tue uscite</p></div>
           <span id="categoryCardLabel" class="rounded-lg border border-line px-2.5 py-1.5 text-xs text-muted">Questo mese</span>
         </div>
-        <div class="grid items-center gap-5 sm:grid-cols-[minmax(0,1.1fr)_minmax(0,.9fr)]">
+        <div id="categoryChartLayout" class="grid items-center gap-5 sm:grid-cols-[minmax(0,1.1fr)_minmax(0,.9fr)]">
           <div class="relative mx-auto h-56 w-full max-w-[270px]">
             <canvas id="categoryChart" aria-label="Grafico a ciambella delle spese per categoria"></canvas>
             <div id="donutCenter" class="pointer-events-none absolute inset-0 grid place-content-center text-center"><span class="text-[11px] text-muted">Totale spese</span><strong id="donutTotal" class="tabular mt-1 text-sm font-semibold"></strong></div>
@@ -611,7 +710,7 @@
           <p class="mt-2 max-w-2xl text-sm text-muted">Un riepilogo settimanale del capitale e dei movimenti, per tenere d’occhio i progressi.</p>
         </div>
       </div>
-      <div class="scrollbar-thin overflow-x-auto">
+      <div class="tracking-table-scroll scrollbar-thin overflow-x-auto">
         <table id="weeklyTable" class="card-box w-full min-w-[780px] border-collapse text-left text-xs sm:text-sm">
           <thead class="bg-[#050505] text-[10px] uppercase tracking-wider text-muted sm:text-[11px]">
             <tr id="weeklyTableHead">
@@ -629,7 +728,15 @@
       </div>
       <p id="trackingDescription" class="border-t border-line px-5 py-3 text-xs text-muted sm:px-6">Le settimane seguono il calendario da lunedì a domenica; la prima e l’ultima possono essere parziali. Il riepilogo confronta il saldo di fine mese con quello del mese precedente.</p>
     </section>
-    <footer class="mt-6 flex flex-wrap items-center justify-between gap-2 text-xs text-muted"><span>I tuoi dati restano salvati in questo browser.</span><button id="resetData" class="transition hover:text-white">Azzera dati</button></footer>
+    <footer class="mt-6 flex flex-wrap items-center justify-between gap-2 text-xs text-muted">
+      <span>I tuoi dati restano salvati in questo browser.</span>
+      <div id="footerActions" class="flex flex-wrap items-center gap-3">
+        <button id="exportData" type="button" class="transition hover:text-white">Esporta dati</button>
+        <button id="importData" type="button" class="transition hover:text-white">Importa dati</button>
+        <input id="importFile" type="file" accept=".json,application/json" class="hidden">
+        <button id="resetData" type="button" class="transition hover:text-white">Azzera dati</button>
+      </div>
+    </footer>
   </main>
 
   <dialog id="movementDialog" class="modal-box card-box w-[min(100%-2rem,480px)] p-0 shadow-2xl">
@@ -799,6 +906,25 @@
           throw new Error('I dati dell’account non hanno un formato valido.');
         }
         return { version: 3, openingBalances: value.openingBalances, movements: value.movements };
+      }
+
+      function normalizeBackupState(value) {
+        const backupState = normalizeState(value);
+        const validMovement = movement => {
+          if (!movement || typeof movement !== 'object' || Array.isArray(movement)) return false;
+          if (typeof movement.id !== 'string' || !movement.id.trim()) return false;
+          if (!['expense', 'income'].includes(movement.type)) return false;
+          if (typeof movement.category !== 'string' || !movement.category.trim()) return false;
+          if (typeof movement.description !== 'string' || !movement.description.trim()) return false;
+          if (typeof movement.amount !== 'number' || !Number.isFinite(movement.amount) || movement.amount <= 0) return false;
+          if (typeof movement.date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(movement.date)) return false;
+          return dateKey(new Date(`${movement.date}T00:00:00`)) === movement.date;
+        };
+        if (!backupState.movements.every(validMovement)
+          || !Object.values(backupState.openingBalances).every(value => typeof value === 'number' && Number.isFinite(value))) {
+          throw new Error('Il file di backup contiene dati non validi.');
+        }
+        return backupState;
       }
 
       async function loadState(user) {
@@ -1157,7 +1283,7 @@
         const summary = document.getElementById('weeklySummary');
         setTableHeaders(['Mese', 'Risparmio', 'Var Mensile', 'Var Percentuale', 'Spese', 'Introiti']);
         if (!annualMovements.length) {
-          rows.innerHTML = '<tr><td class="table-cell py-10 text-center text-sm text-muted" colspan="6">Il riepilogo annuale apparirà qui dopo il primo movimento.</td></tr>';
+          rows.innerHTML = '<tr class="weekly-empty-row"><td class="table-cell py-10 text-center text-sm text-muted" colspan="6">Il riepilogo annuale apparirà qui dopo il primo movimento.</td></tr>';
           summary.innerHTML = '';
           return;
         }
@@ -1173,12 +1299,12 @@
           const totals = monthTotals(key);
           const deltaColor = delta > 0 ? 'text-positive' : delta < 0 ? 'text-negative' : 'text-white';
           return `<tr class="transition hover:bg-white/[.015]">
-            <td class="table-cell whitespace-nowrap font-medium capitalize">${monthName}</td>
-            <td class="table-cell tabular text-right font-medium">${money.format(balance)}</td>
-            <td class="table-cell tabular text-right ${deltaColor}">${signedMoney(delta)}</td>
-            <td class="table-cell tabular text-right ${deltaColor}">${signedPercent(percent)}</td>
-            <td class="table-cell tabular text-right ${totals.expense ? 'text-negative' : 'text-muted'}">${totals.expense ? `-${money.format(totals.expense)}` : money.format(0)}</td>
-            <td class="table-cell tabular text-right ${totals.income ? 'text-positive' : 'text-muted'}">${totals.income ? `+${money.format(totals.income)}` : money.format(0)}</td>
+            <td class="table-cell whitespace-nowrap font-medium capitalize" data-label="Mese">${monthName}</td>
+            <td class="table-cell tabular text-right font-medium" data-label="Risparmio">${money.format(balance)}</td>
+            <td class="table-cell tabular text-right ${deltaColor}" data-label="Var Mensile">${signedMoney(delta)}</td>
+            <td class="table-cell tabular text-right ${deltaColor}" data-label="Var Percentuale">${signedPercent(percent)}</td>
+            <td class="table-cell tabular text-right ${totals.expense ? 'text-negative' : 'text-muted'}" data-label="Spese">${totals.expense ? `-${money.format(totals.expense)}` : money.format(0)}</td>
+            <td class="table-cell tabular text-right ${totals.income ? 'text-positive' : 'text-muted'}" data-label="Introiti">${totals.income ? `+${money.format(totals.income)}` : money.format(0)}</td>
           </tr>`;
         }).join('');
         const totals = totalsForYear(year);
@@ -1188,10 +1314,10 @@
         const percent = previousBalance === 0 ? 0 : delta / Math.abs(previousBalance) * 100;
         const deltaColor = delta > 0 ? 'text-positive' : delta < 0 ? 'text-negative' : 'text-white';
         summary.innerHTML = `<tr class="border-t border-line bg-[#050505] font-semibold">
-          <td class="table-cell">Riepilogo ${year}</td><td class="table-cell tabular text-right">${money.format(balance)}</td>
-          <td class="table-cell tabular text-right ${deltaColor}">${signedMoney(delta)}</td><td class="table-cell tabular text-right ${deltaColor}">${signedPercent(percent)}</td>
-          <td class="table-cell tabular text-right ${totals.expense ? 'text-negative' : 'text-muted'}">${totals.expense ? `-${money.format(totals.expense)}` : money.format(0)}</td>
-          <td class="table-cell tabular text-right ${totals.income ? 'text-positive' : 'text-muted'}">${totals.income ? `+${money.format(totals.income)}` : money.format(0)}</td>
+          <td class="table-cell" data-label="Mese">Riepilogo ${year}</td><td class="table-cell tabular text-right" data-label="Risparmio">${money.format(balance)}</td>
+          <td class="table-cell tabular text-right ${deltaColor}" data-label="Var Mensile">${signedMoney(delta)}</td><td class="table-cell tabular text-right ${deltaColor}" data-label="Var Percentuale">${signedPercent(percent)}</td>
+          <td class="table-cell tabular text-right ${totals.expense ? 'text-negative' : 'text-muted'}" data-label="Spese">${totals.expense ? `-${money.format(totals.expense)}` : money.format(0)}</td>
+          <td class="table-cell tabular text-right ${totals.income ? 'text-positive' : 'text-muted'}" data-label="Introiti">${totals.income ? `+${money.format(totals.income)}` : money.format(0)}</td>
         </tr>`;
       }
       function renderWeeklyTable() {
@@ -1202,7 +1328,7 @@
         setTableHeaders(['Settimana', 'Risparmio', 'Var Settimanale', 'Var Percentuale', 'Spese', 'Introiti']);
         const weeks = weeksFor(selectedMonth);
         if (!movementsForMonth(selectedMonth).length) {
-          document.getElementById('weeklyRows').innerHTML = '<tr><td class="table-cell py-10 text-center text-sm text-muted" colspan="6">Il riepilogo settimanale apparirà qui dopo il primo movimento.</td></tr>';
+          document.getElementById('weeklyRows').innerHTML = '<tr class="weekly-empty-row"><td class="table-cell py-10 text-center text-sm text-muted" colspan="6">Il riepilogo settimanale apparirà qui dopo il primo movimento.</td></tr>';
           document.getElementById('weeklySummary').innerHTML = '';
           return;
         }
@@ -1215,12 +1341,12 @@
           const percentColor = percent > 0 ? 'text-positive' : percent < 0 ? 'text-negative' : 'text-white';
           previous = balance;
           return `<tr class="transition hover:bg-white/[.015]">
-            <td class="table-cell whitespace-nowrap font-medium">${formatWeekLabel(week)}</td>
-            <td class="table-cell tabular text-right font-medium">${money.format(balance)}</td>
-            <td class="table-cell tabular text-right ${savingsColor}">${signedMoney(delta)}</td>
-            <td class="table-cell tabular text-right ${percentColor}">${signedPercent(percent)}</td>
-            <td class="table-cell tabular text-right ${week.expense ? 'text-negative' : 'text-muted'}">${week.expense ? `-${money.format(week.expense)}` : money.format(0)}</td>
-            <td class="table-cell tabular text-right ${week.income ? 'text-positive' : 'text-muted'}">${week.income ? `+${money.format(week.income)}` : money.format(0)}</td>
+            <td class="table-cell whitespace-nowrap font-medium" data-label="Settimana">${formatWeekLabel(week)}</td>
+            <td class="table-cell tabular text-right font-medium" data-label="Risparmio">${money.format(balance)}</td>
+            <td class="table-cell tabular text-right ${savingsColor}" data-label="Var Settimanale">${signedMoney(delta)}</td>
+            <td class="table-cell tabular text-right ${percentColor}" data-label="Var Percentuale">${signedPercent(percent)}</td>
+            <td class="table-cell tabular text-right ${week.expense ? 'text-negative' : 'text-muted'}" data-label="Spese">${week.expense ? `-${money.format(week.expense)}` : money.format(0)}</td>
+            <td class="table-cell tabular text-right ${week.income ? 'text-positive' : 'text-muted'}" data-label="Introiti">${week.income ? `+${money.format(week.income)}` : money.format(0)}</td>
           </tr>`;
         }).join('');
         const currentTotal = monthBalance(selectedMonth);
@@ -1231,10 +1357,10 @@
         const deltaColor = delta > 0 ? 'text-positive' : delta < 0 ? 'text-negative' : 'text-white';
         const totals = monthTotals(selectedMonth);
         document.getElementById('weeklySummary').innerHTML = `<tr class="border-t border-line bg-[#050505] font-semibold">
-          <td class="table-cell">Riepilogo mese</td><td class="table-cell tabular text-right">${money.format(currentTotal)}</td>
-          <td class="table-cell tabular text-right ${deltaColor}">${signedMoney(delta)}</td><td class="table-cell tabular text-right ${deltaColor}">${signedPercent(percent)}</td>
-          <td class="table-cell tabular text-right ${totals.expense ? 'text-negative' : 'text-muted'}">${totals.expense ? `-${money.format(totals.expense)}` : money.format(0)}</td>
-          <td class="table-cell tabular text-right ${totals.income ? 'text-positive' : 'text-muted'}">${totals.income ? `+${money.format(totals.income)}` : money.format(0)}</td>
+          <td class="table-cell" data-label="Settimana">Riepilogo mese</td><td class="table-cell tabular text-right" data-label="Risparmio">${money.format(currentTotal)}</td>
+          <td class="table-cell tabular text-right ${deltaColor}" data-label="Var Settimanale">${signedMoney(delta)}</td><td class="table-cell tabular text-right ${deltaColor}" data-label="Var Percentuale">${signedPercent(percent)}</td>
+          <td class="table-cell tabular text-right ${totals.expense ? 'text-negative' : 'text-muted'}" data-label="Spese">${totals.expense ? `-${money.format(totals.expense)}` : money.format(0)}</td>
+          <td class="table-cell tabular text-right ${totals.income ? 'text-positive' : 'text-muted'}" data-label="Introiti">${totals.income ? `+${money.format(totals.income)}` : money.format(0)}</td>
         </tr>`;
       }
       function render() {
@@ -1460,6 +1586,61 @@
         selectedMonth = monthKey(now);
         render();
         showToast('Dati azzerati.');
+      });
+      document.getElementById('exportData').addEventListener('click', () => {
+        try {
+          const backup = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+          const downloadUrl = URL.createObjectURL(backup);
+          const downloadLink = document.createElement('a');
+          downloadLink.href = downloadUrl;
+          downloadLink.download = 'bilancio_backup.json';
+          downloadLink.click();
+          setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
+          showToast('Backup esportato.');
+        } catch (error) {
+          console.error('Esportazione del backup non riuscita:', error);
+          showToast('Impossibile esportare il backup.');
+        }
+      });
+      const importFile = document.getElementById('importFile');
+      document.getElementById('importData').addEventListener('click', () => importFile.click());
+      importFile.addEventListener('change', event => {
+        const file = event.target.files[0];
+        if (!file) return;
+        if (!file.name.toLocaleLowerCase().endsWith('.json')) {
+          showToast('Seleziona un file di backup .json.');
+          importFile.value = '';
+          return;
+        }
+        const reader = new FileReader();
+        reader.onerror = () => {
+          console.error('Lettura del file di backup non riuscita:', reader.error);
+          showToast('Impossibile leggere il file selezionato.');
+          importFile.value = '';
+        };
+        reader.onload = async () => {
+          let importedState;
+          try {
+            importedState = normalizeBackupState(JSON.parse(String(reader.result)));
+            migrateCategories(importedState);
+          } catch (error) {
+            console.error('Importazione del backup non riuscita:', error);
+            showToast('File di backup non valido. Nessun dato è stato importato.');
+            importFile.value = '';
+            return;
+          }
+          const previousState = state;
+          state = importedState;
+          const saved = await persist();
+          if (saved) {
+            render();
+            showToast('Dati importati e sincronizzati.');
+          } else {
+            state = previousState;
+          }
+          importFile.value = '';
+        };
+        reader.readAsText(file);
       });
       const themeToggle = document.getElementById('themeToggle');
       const themeMenuOptions = document.getElementById('themeMenuOptions');
