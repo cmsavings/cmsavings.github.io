@@ -367,10 +367,12 @@
       }
       #openAdd:hover { filter: brightness(1.1); }
       #openAdd > .add-icon {
+        display: none !important;
+      }
+      #openAdd > .fab-svg-icon {
+        display: block !important;
         margin: 0 !important;
         transform: none !important;
-        font-size: 1.75rem;
-        line-height: 1 !important;
       }
       #openAdd > .add-label { display: none; }
       #dashboard { padding-bottom: 90px !important; }
@@ -428,20 +430,86 @@
       }
       #expenseList > .group,
       #incomeList > .group {
-        align-items: flex-start;
+        position: relative;
+        display: grid !important;
+        grid-template-areas: "title title edit delete" "badges date amount amount";
+        grid-template-columns: minmax(0, 1fr) auto auto auto;
+        align-items: center;
+        column-gap: 0.5rem;
+        row-gap: 0.35rem;
         padding: 12px 10px;
       }
-      #expenseList > .group > .min-w-0 > div:first-child,
-      #incomeList > .group > .min-w-0 > div:first-child {
-        align-items: flex-start;
-        flex-direction: column;
+      #expenseList > .group *,
+      #incomeList > .group * {
+        position: static !important;
+      }
+      #expenseList > .group > .movement-icon,
+      #incomeList > .group > .movement-icon {
+        display: none;
+      }
+      #expenseList > .group > .movement-info,
+      #incomeList > .group > .movement-info,
+      #expenseList .movement-heading,
+      #incomeList .movement-heading {
+        display: contents;
+      }
+      #expenseList .movement-title,
+      #incomeList .movement-title {
+        grid-area: title;
+        min-width: 0;
+        width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      #expenseList .movement-meta,
+      #incomeList .movement-meta {
+        display: flex;
+        grid-area: date;
+        min-width: max-content;
+        align-items: center;
+      }
+      #expenseList .movement-badges,
+      #incomeList .movement-badges {
+        display: flex;
+        grid-area: badges;
+        min-width: 0;
+        flex-wrap: nowrap;
+        align-items: center;
         gap: 0.35rem;
+        overflow: hidden;
+      }
+      #expenseList .movement-date,
+      #incomeList .movement-date {
+        margin: 0;
+        white-space: nowrap;
       }
       #expenseList .movement-badge,
       #incomeList .movement-badge {
-        max-width: 100%;
-        white-space: normal;
-        overflow-wrap: anywhere;
+        min-width: 0;
+        flex: 0 1 auto;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      #expenseList .movement-amount,
+      #incomeList .movement-amount {
+        grid-area: amount;
+        align-self: end;
+        justify-self: end;
+        margin-left: auto;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+      #expenseList .edit-movement,
+      #incomeList .edit-movement {
+        grid-area: edit;
+        justify-self: end;
+      }
+      #expenseList .delete-movement,
+      #incomeList .delete-movement {
+        grid-area: delete;
+        justify-self: end;
       }
       .tracking-table-scroll {
         overflow-x: visible !important;
@@ -633,7 +701,7 @@
           </button>
         </div>
         <button id="openAdd" class="flex h-11 items-center gap-2 rounded-xl bg-positive px-4 text-sm font-bold text-ink transition hover:bg-[#FFB52E]">
-          <span class="add-icon text-xl leading-none">+</span><span class="add-label">Aggiungi</span>
+          <span class="add-icon text-xl leading-none">+</span><span class="fab-svg-icon hidden" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: block; margin: auto;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span><span class="add-label">Aggiungi</span>
         </button>
       </div>
     </header>
@@ -1137,11 +1205,11 @@
             ? `<span class="movement-badge max-w-36 truncate rounded-md px-2 py-0.5 text-[10px]">${item.paymentMethod === 'card' ? `Carta: ${escapeHtml(item.cardName || '')}` : 'Contanti'}</span>`
             : '';
           return `<div class="group flex items-center gap-3 rounded-xl px-2 py-3 transition hover:bg-white/[.025]">
-            <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl ${positive ? 'bg-positive/10 text-positive' : 'expense-surface text-negative'}">
+            <span class="movement-icon grid h-10 w-10 shrink-0 place-items-center rounded-xl ${positive ? 'bg-positive/10 text-positive' : 'expense-surface text-negative'}">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="${positive ? 'M12 19V5m-6 6 6-6 6 6' : 'M12 5v14m6-6-6 6-6-6'}" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span>
-            <div class="min-w-0 flex-1"><div class="flex flex-wrap items-center gap-2"><p class="truncate text-sm font-medium">${escapeHtml(item.description)}</p><span class="movement-badge max-w-32 truncate rounded-md px-2 py-0.5 text-[10px]">${escapeHtml(item.category)}</span>${paymentBadge}</div><p class="mt-1 text-xs text-muted">${formatDate(item.date)}</p></div>
-            <span class="tabular whitespace-nowrap text-sm font-medium ${positive ? 'text-positive' : 'text-negative'}">${signedMoney(positive ? item.amount : -item.amount)}</span>
+            <div class="movement-info min-w-0 flex-1"><div class="movement-heading flex flex-wrap items-center gap-2"><p class="movement-title truncate text-sm font-medium">${escapeHtml(item.description)}</p><div class="movement-badges contents flex flex-wrap items-center gap-2"><span class="movement-badge max-w-32 truncate rounded-md px-2 py-0.5 text-[10px]">${escapeHtml(item.category)}</span>${paymentBadge}</div></div><div class="movement-meta mt-1 flex items-center gap-2"><p class="movement-date text-xs text-muted">${formatDate(item.date)}</p></div></div>
+            <span class="movement-amount tabular whitespace-nowrap text-sm font-medium ${positive ? 'text-positive' : 'text-negative'}">${signedMoney(positive ? item.amount : -item.amount)}</span>
             <button class="edit-movement ml-1 rounded-lg p-2 text-muted opacity-70 transition hover:bg-white/5 hover:text-white focus:opacity-100 sm:opacity-0 sm:group-hover:opacity-100" data-id="${escapeHtml(item.id)}" aria-label="Modifica ${escapeHtml(item.description)}" title="Modifica movimento">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="m14 5 5 5M4 20l4.5-1 10.8-10.8a2.1 2.1 0 0 0-3-3L5.5 16 4 20Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
